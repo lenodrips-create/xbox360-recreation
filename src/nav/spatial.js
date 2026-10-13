@@ -44,7 +44,8 @@ function rel(a, b, dir) {
 }
 
 function inDirection(a, b, dir, strict) {
-  const tol = 2;
+  // Generous tolerance: selected tiles grow (scale) and some items overlap slightly.
+  const tol = 24;
   if (strict) {
     if (dir === 'right') return b.left >= a.right - tol;
     if (dir === 'left') return b.right <= a.left + tol;
@@ -55,10 +56,13 @@ function inDirection(a, b, dir, strict) {
   const acy = (a.top + a.bottom) / 2;
   const bcx = (b.left + b.right) / 2;
   const bcy = (b.top + b.bottom) / 2;
-  if (dir === 'right') return bcx > acx + 4;
-  if (dir === 'left') return bcx < acx - 4;
-  if (dir === 'down') return bcy > acy + 4;
-  return bcy < acy - 4;
+  // Loose pass: the target's centre must lie mostly in the pressed direction.
+  const dx = bcx - acx;
+  const dy = bcy - acy;
+  if (dir === 'right') return dx > 4 && dx > Math.abs(dy) * 0.6;
+  if (dir === 'left') return dx < -4 && -dx > Math.abs(dy) * 0.6;
+  if (dir === 'down') return dy > 4 && dy > Math.abs(dx) * 0.6;
+  return dy < -4 && -dy > Math.abs(dx) * 0.6;
 }
 
 function score(a, b, dir) {

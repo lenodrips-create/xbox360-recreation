@@ -218,20 +218,28 @@
   --focus-scale: 1.06;
 }
 
-.social-me {
+/* Everything on the channel is selectable. Like tiles, items zoom when
+   selected; the avatar is selectable without any outline or zoom. */
+.soc-btn {
   position: absolute;
+  color: #fff;
+  transition: transform 0.16s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.soc-btn:focus {
+  z-index: 3;
+}
+
+.soc-tag {
   left: 284px;
   top: -16px;
   width: 420px;
-  height: 640px;
-  color: #fff;
-  border-radius: 2px;
-  transition: background-color 0.2s;
+  height: 128px;
+  transform-origin: 8px 50%;
 }
 
-.social-me:focus {
-  background: rgba(255, 255, 255, 0.07);
-  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.5);
+.soc-tag:focus {
+  transform: scale(1.06);
 }
 
 .social-tag {
@@ -259,44 +267,92 @@
 
 .social-score .g-badge {
   color: #f4f4f4;
+  width: 44px;
+  height: 44px;
 }
 
 .awards {
   position: absolute;
-  left: 6px;
-  top: 146px;
-  display: grid;
-  grid-template-columns: repeat(3, 60px);
-  grid-template-rows: repeat(3, 60px);
-  gap: 6px;
+  left: 288px;
+  top: 128px;
+  width: 194px;
+  height: 194px;
 }
 
 .award {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(160deg, #e2e2e0 0%, #c4c4c2 60%, #b3b3b1 100%);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.5),
-    0 1px 2px rgba(0, 0, 0, 0.25);
+  width: 62px;
+  height: 62px;
 }
 
-.award.is-badge {
-  background: linear-gradient(160deg, #e3e6d6, #c4c9b0);
-  box-shadow: inset 0 0 0 2px #7f8c62;
+.awards .award:nth-child(3n + 1) {
+  left: 0;
 }
 
-.award.is-empty {
-  background: rgba(255, 255, 255, 0.07);
-  box-shadow: none;
+.awards .award:nth-child(3n + 2) {
+  left: 66px;
+}
+
+.awards .award:nth-child(3n + 3) {
+  left: 132px;
+}
+
+.awards .award:nth-child(-n + 3) {
+  top: 0;
+}
+
+.awards .award:nth-child(n + 4):nth-child(-n + 6) {
+  top: 66px;
+}
+
+.awards .award:nth-child(n + 7) {
+  top: 132px;
+}
+
+.award img {
+  display: block;
+  width: 62px;
+  height: 62px;
+}
+
+.award:focus {
+  transform: scale(1.15);
+  box-shadow: 3px 5px 14px rgba(0, 0, 0, 0.45);
+}
+
+.award.is-empty::before {
+  content: '';
+  position: absolute;
+  inset: 1px 3px 3px 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.award.is-empty:focus::before {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.soc-avatar {
+  left: 469px;
+  top: 64px;
+  width: 202px;
+  height: 554px;
+}
+
+.soc-avatar:has(.social-avatar) {
+  left: 424px;
+  top: 30px;
+  width: 300px;
+  height: 600px;
+}
+
+.social-avatar-img {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .social-avatar {
   position: absolute;
-  left: 150px;
-  top: 52px;
-  width: 300px;
-  height: 600px;
+  inset: 0;
   filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.18));
 }
 
@@ -305,19 +361,26 @@
   height: 100%;
 }
 
-.social-me:focus .avatar .av-arm-r {
+.soc-avatar:focus .avatar .av-arm-r {
   animation: avWave 1.4s ease-in-out 2;
 }
 
-.social-copy {
-  position: absolute;
-  left: 824px;
-  top: 190px;
-  width: 440px;
+.soc-copy {
+  left: 818px;
+  top: 184px;
+  width: 452px;
+  padding: 6px;
+  text-align: left;
   font-size: 39px;
   font-weight: 300;
   line-height: 58px;
   color: rgba(255, 255, 255, 0.92);
+  transform-origin: 6px 50%;
+}
+
+.soc-copy:focus {
+  transform: scale(1.05);
+  color: #fff;
 }
 
 /* ---- settings ------------------------------------------------------------ */
@@ -343,41 +406,22 @@
   display: block;
 }
 
-.awards {
-  left: 4px;
-  top: 144px;
-  grid-template-columns: repeat(3, 62px);
-  grid-template-rows: repeat(3, 62px);
-  gap: 4px;
+/* Crisp live label + disc icon over the Play tile artwork. */
+.tile-play-game .tile-label {
+  font-size: 24px;
+  left: 18px;
+  bottom: 13px;
 }
 
-.award {
-  background: none;
-  box-shadow: none;
-}
-
-.award img {
-  width: 62px;
-  height: 62px;
-  display: block;
-}
-
-.award.is-empty {
-  margin: 1px 3px 3px 1px;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-/* Avatar from the capture, placed where it stands on the console. */
-.social-avatar-img {
+.play-disc {
   position: absolute;
-  left: 185px;
-  top: 80px;
-  width: 202px;
-  height: 554px;
-  pointer-events: none;
-}
-
-.social-score .g-badge {
-  width: 44px;
-  height: 44px;
+  z-index: 1;
+  right: 14px;
+  top: 15px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #8f8f8f 0 5px, #fff 5.5px 8px, #d9d9d9 8.5px 10px, #f4f4f4 10.5px 100%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  opacity: 0.95;
 }

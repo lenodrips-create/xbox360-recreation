@@ -24,6 +24,8 @@ export default function HomePivot() {
         ariaLabel={`Play ${game.title}`}
       >
         <img className="tile-img" src={REF.play} alt="" draggable={false} />
+        <span className="play-disc" aria-hidden="true" />
+        <span className="tile-label">Play {game.title}</span>
       </Tile>
       <Tile id="home-pins" at={[1, 2, 1, 1]} label="My Pins" onSelect={() => ui.push('pins')}>
         <Glyph name="pin" size={84} className="tile-glyph" />

@@ -24,7 +24,8 @@ function Boot() {
     setTimeout(() => setPower('on'), 450);
   };
 
-  const { ref } = useLayer({ priority: 400, blockGlobal: true, onBack: finish, onAction: () => (finish(), true) });
+  // The intro can't be skipped: every input is swallowed until it ends.
+  const { ref } = useLayer({ priority: 400, blockGlobal: true, onBack: () => {}, onAction: () => true, onRawKey: (e) => !/^F\d+$/.test(e.key) });
 
   useEffect(() => {
     const v = videoRef.current;
@@ -35,8 +36,8 @@ function Boot() {
       setMuted(true);
       v.play().catch(() => finish());
     });
-    // Safety net if the video can't load or stalls.
-    const t = setTimeout(finish, 14000);
+    // Safety net only for a video that fails to load or stalls.
+    const t = setTimeout(finish, 20000);
     return () => clearTimeout(t);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -45,18 +46,16 @@ function Boot() {
     if (muted && v) {
       v.muted = false;
       setMuted(false);
-      return;
     }
-    finish();
   };
 
   return (
     <div ref={ref} className={`boot ${ending ? 'is-ending' : ''}`} onClick={onClick} role="presentation">
       <video ref={videoRef} className="boot-video" playsInline preload="auto" onEnded={finish}>
         <source src={REF.introWebm} type="video/webm" />
-        <source src={REF.intro} type="video/mp4" onError={finish} />
+        <source src={REF.intro} type="video/mp4" onError={() => setTimeout(finish, 300)} />
       </video>
-      {muted && <div className="boot-unmute">Click for sound · press any key to skip</div>}
+      {muted && <div className="boot-unmute">Click for sound</div>}
     </div>
   );
 }
