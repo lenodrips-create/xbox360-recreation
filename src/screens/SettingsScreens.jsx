@@ -41,7 +41,7 @@ export function ProfileSettings({ active }) {
       id: 'pf-tag',
       label: 'Gamertag',
       value: p.gamertag,
-      icon: 'person',
+      icon: 'controller',
       desc: 'Your public name on Xbox LIVE. 3–15 characters.',
       onSelect: editTag,
     },
@@ -67,7 +67,7 @@ export function ProfileSettings({ active }) {
       desc: 'A short phrase friends see on your profile.',
       onSelect: edit('motto', 'Motto', 21),
     },
-    { id: 'pf-name', label: 'Name', value: p.name, icon: 'card', desc: 'Your real name (optional).', onSelect: edit('name', 'Name', 30) },
+    { id: 'pf-name', label: 'Name', value: p.name, icon: 'person', desc: 'Your real name (optional).', onSelect: edit('name', 'Name', 30) },
     {
       id: 'pf-location',
       label: 'Location',

@@ -46,8 +46,8 @@ function Welcome() {
           <p className="welcome-note">Both stay on this device. There are no accounts or passwords, and nothing is sent anywhere.</p>
         </div>
         <div className="dialog-actions">
-          <Row id="welcome-tag" icon="person" label="Gamertag" value={tag || 'Required'} isDefault onSelect={editTag} />
-          <Row id="welcome-name" icon="card" label="Name" value={name || 'Optional'} onSelect={editName} />
+          <Row id="welcome-tag" icon="controller" label="Gamertag" value={tag || 'Required'} isDefault onSelect={editTag} />
+          <Row id="welcome-name" icon="person" label="Name" value={name || 'Optional'} onSelect={editName} />
           <Row id="welcome-done" icon="check" label="Done" disabled={!ready} onSelect={finish} />
         </div>
       </div>
