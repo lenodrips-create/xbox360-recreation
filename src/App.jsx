@@ -19,7 +19,6 @@ import PowerOverlay from './overlays/Power.jsx';
 
 const W = 1920;
 const H = 1080;
-const SEEN_KEY = 'x360-metro-dashboard:seen';
 
 function useStageScale() {
   const [scale, setScale] = useState(1);
@@ -113,16 +112,6 @@ function Console() {
   useEffect(() => {
     if (prevPower.current !== 'on' && ui.power === 'on' && state.signedIn) {
       ui.notify({ kind: 'signin', title: `${state.profile.gamertag} signed in`, text: 'Welcome to Xbox LIVE', force: true });
-      let seen = false;
-      try {
-        seen = !!window.localStorage.getItem(SEEN_KEY);
-        window.localStorage.setItem(SEEN_KEY, '1');
-      } catch {
-        seen = true;
-      }
-      if (!seen) {
-        ui.notify({ kind: 'hint', title: 'Controls', text: 'Arrows move · Enter selects · Esc goes back · F1 for help', icon: 'help', force: true });
-      }
     }
     prevPower.current = ui.power;
   }, [ui.power]); // eslint-disable-line react-hooks/exhaustive-deps

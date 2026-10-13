@@ -5,13 +5,13 @@ export const THEMES = [
   {
     id: 'default',
     name: 'Xbox 360 Default',
-    mode: 'light',
+    mode: 'gray',
+    // Sampled from the 2013-2015 dashboard: dark charcoal at the top fading to
+    // light grey below the tiles, then slightly darker at the bottom edge.
     base:
-      'radial-gradient(120% 75% at 50% -10%, #ffffff 0%, rgba(255,255,255,0) 62%),' +
-      'radial-gradient(60% 50% at 100% 100%, rgba(170,176,182,.55) 0%, rgba(170,176,182,0) 70%),' +
-      'linear-gradient(180deg, #ececec 0%, #dcdedf 55%, #c8cbcd 100%)',
-    ribbons: 'rgba(255,255,255,0.75)',
-    ribbonOpacity: 0.9,
+      'linear-gradient(180deg, #444444 0%, #4f4f4f 11%, #5e5e5e 22%, #747474 33%, #919191 44%, #adadad 56%, ' +
+      '#c0c0c0 67%, #c5c5c5 72%, #c0c0c0 78%, #aaaaaa 89%, #9b9b9b 100%)',
+    ribbons: null,
   },
   {
     id: 'carbon',

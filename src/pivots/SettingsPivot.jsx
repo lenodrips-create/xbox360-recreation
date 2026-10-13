@@ -1,74 +1,64 @@
 import { Tile } from '../components/ui.jsx';
-import Gamerpic from '../components/Gamerpic.jsx';
-import Avatar from '../components/Avatar.jsx';
-import { THEME_BY_ID } from '../data/themes.js';
-import { useStore } from '../state/store.jsx';
+import Glyph from '../components/Glyph.jsx';
+import { sound } from '../audio/sound.js';
 import { useUI } from '../state/ui.jsx';
 
 export default function SettingsPivot() {
   const ui = useUI();
-  const { state } = useStore();
-  const theme = THEME_BY_ID[state.settings.theme] || THEME_BY_ID.default;
-  const { profile } = state;
+
+  const turnOff = async () => {
+    const ok = await ui.confirm({
+      title: 'Turn Off',
+      message: 'Turn off the console? Your preferences are saved automatically.',
+      confirmLabel: 'Turn Off',
+      cancelLabel: 'Cancel',
+    });
+    if (ok) {
+      sound.play('power');
+      ui.setPower('off');
+    }
+  };
+
   return (
-    <div className="grid12">
-      <Tile id="set-profile" at={[1, 1, 4, 4]} className="tile-profile" isDefault onSelect={() => ui.push('settings.profile')} ariaLabel="profile">
-        <span className="tp-pic">
-          <Gamerpic id={profile.gamerpic} avatar={profile.avatar} size={176} />
-        </span>
-        <span className="tp-tag">{profile.gamertag}</span>
-        <span className="tp-motto">“{profile.motto || 'No motto yet'}”</span>
-        <span className="tile-label">profile</span>
+    <div className="grid-settings">
+      <Tile id="set-system" label="System" isDefault onSelect={() => ui.push('settings.system')}>
+        <Glyph name="system" size={92} className="tile-glyph" />
       </Tile>
-      <Tile id="set-system" at={[5, 1, 2, 2]} icon="gear" label="system" onSelect={() => ui.push('settings.system')} />
-      <Tile id="set-preferences" at={[7, 1, 2, 2]} icon="sliders" label="preferences" onSelect={() => ui.push('settings.prefs')} />
-      <Tile id="set-account" at={[5, 3, 2, 2]} icon="card" label="account" onSelect={() => ui.push('settings.account')} />
-      <Tile id="set-family" at={[7, 3, 2, 2]} icon="family" label="family" onSelect={() => ui.push('settings.family')} />
+      <Tile id="set-profile" label="Profile" onSelect={() => ui.push('settings.profile')}>
+        <Glyph name="profile" size={92} className="tile-glyph" />
+      </Tile>
+      <Tile id="set-preferences" label="Preferences" onSelect={() => ui.push('settings.prefs')}>
+        <Glyph name="preferences" size={92} className="tile-glyph" />
+      </Tile>
       <Tile
-        id="set-theme"
-        at={[5, 5, 4, 2]}
-        variant="theme"
-        className={theme.mode === 'light' ? 'is-light' : ''}
-        onSelect={() => ui.push('settings.theme')}
-        ariaLabel="theme"
+        id="set-kinect"
+        label="Kinect"
+        className="is-unavailable"
+        snd="error"
+        onSelect={() =>
+          ui.notify({
+            kind: 'info',
+            title: 'Kinect sensor not detected',
+            text: 'Connect a Kinect sensor to use these settings',
+            icon: 'kinect',
+            force: true,
+          })
+        }
       >
-        <span className="theme-swatch" style={{ background: theme.base }} />
-        <span className="theme-mini">
-          <i />
-          <i />
-          <i />
-          <i />
-        </span>
-        <span className="tile-label">theme</span>
-        <span className="tile-sub">{theme.name}</span>
+        <Glyph name="kinect" size={92} className="tile-glyph" />
       </Tile>
-      <Tile id="set-avatar" at={[1, 5, 4, 2]} variant="avatar" onSelect={() => ui.push('avatar')} ariaLabel="change avatar">
-        <span className="avatar-strip">
-          <Avatar config={profile.avatar} delay={1.2} />
-        </span>
-        <span className="tile-label">change avatar</span>
-        <span className="tile-sub">Style, features and clothes</span>
+      <Tile id="set-account" label="Account" onSelect={() => ui.push('settings.account')}>
+        <Glyph name="account" size={92} className="tile-glyph" />
       </Tile>
-      <Tile id="set-display" at={[9, 1, 2, 2]} variant="dark" icon="monitor" label="display" onSelect={() => ui.push('settings.display')} />
-      <Tile id="set-storage" at={[11, 1, 2, 2]} variant="dark" icon="hdd" label="storage" onSelect={() => ui.push('settings.storage')} />
-      <Tile
-        id="set-audio"
-        at={[9, 3, 2, 2]}
-        variant="dark"
-        icon={state.settings.sound ? 'speaker' : 'mute'}
-        label="audio"
-        onSelect={() => ui.push('settings.audio')}
-      />
-      <Tile id="set-network" at={[11, 3, 2, 2]} variant="dark" icon="network" label="network" onSelect={() => ui.push('settings.network')} />
-      <Tile
-        id="set-help"
-        at={[9, 5, 4, 2]}
-        variant="light"
-        icon="help"
-        label="help & controls"
-        sub="Keyboard, mouse, touch and controller"
-        onSelect={() => ui.setHelpOpen(true)}
-      />
+      <Tile id="set-privacy" label="Privacy" onSelect={() => ui.push('settings.privacy')}>
+        <Glyph name="privacy" size={92} className="tile-glyph" />
+      </Tile>
+      <Tile id="set-family" label="Family" onSelect={() => ui.push('settings.family')}>
+        <Glyph name="family" size={92} className="tile-glyph" />
+      </Tile>
+      <Tile id="set-turnoff" label="Turn Off" onSelect={turnOff}>
+        <Glyph name="power" size={92} className="tile-glyph" />
+      </Tile>
     </div>
   );
 }

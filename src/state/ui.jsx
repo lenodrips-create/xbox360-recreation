@@ -23,7 +23,7 @@ export function UIProvider({ children }) {
   const [guideOpen, setGuideOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [power, setPower] = useState('booting');
-  const [pivot, setPivot] = useState(1);
+  const [pivot, setPivot] = useState(0);
   const [party, setParty] = useState(null);
   const [trayOpen, setTrayOpen] = useState(false);
   const [presence, setPresence] = useState(() => Object.fromEntries(FRIENDS.map((f) => [f.id, { presence: f.presence, activity: f.activity }])));

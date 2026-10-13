@@ -1,43 +1,24 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { useLayer } from '../nav/NavProvider.jsx';
 import { entryCandidate, getCandidates } from '../nav/spatial.js';
 import { sound } from '../audio/sound.js';
 import { useStore } from '../state/store.jsx';
 import { useUI } from '../state/ui.jsx';
-import BingPivot from '../pivots/BingPivot.jsx';
 import HomePivot from '../pivots/HomePivot.jsx';
 import SocialPivot from '../pivots/SocialPivot.jsx';
-import GamesPivot from '../pivots/GamesPivot.jsx';
-import AppsPivot from '../pivots/AppsPivot.jsx';
 import SettingsPivot from '../pivots/SettingsPivot.jsx';
+import { Btn } from './ui.jsx';
 
 export const PIVOTS = [
-  { id: 'bing', label: 'bing', Comp: BingPivot },
   { id: 'home', label: 'home', Comp: HomePivot },
   { id: 'social', label: 'social', Comp: SocialPivot },
-  { id: 'games', label: 'games', Comp: GamesPivot },
-  { id: 'apps', label: 'apps', Comp: AppsPivot },
   { id: 'settings', label: 'settings', Comp: SettingsPivot },
 ];
 
-const EASE_OUT = 'cubic-bezier(.1,.9,.2,1)';
-
-// Metro-style entrance: tiles slide in from the side, staggered by column.
-function animateEntry(page, dir, baseDelay = 70) {
-  const items = page.querySelectorAll('[data-anim]');
-  const width = page.offsetWidth || 1632;
-  items.forEach((el) => {
-    const x = el.offsetLeft;
-    const lead = dir > 0 ? x : width - x - el.offsetWidth;
-    el.animate(
-      [
-        { opacity: 0, transform: `translateX(${dir * 300}px)` },
-        { opacity: 1, transform: 'translateX(0)' },
-      ],
-      { duration: 520, delay: baseDelay + (Math.max(0, lead) / width) * 150, easing: EASE_OUT, fill: 'backwards' },
-    );
-  });
-}
+// All channels sit on one horizontal strip; the current one starts at
+// CONTENT_X and its neighbours peek in, dimmed, at the screen edges.
+const CONTENT_X = 320;
+const PAGE_PITCH = 1510;
 
 export default function Dashboard() {
   const ui = useUI();
@@ -49,18 +30,12 @@ export default function Dashboard() {
   const prevRef = useRef(index);
   const pendingEntry = useRef(null);
   const pivotFocus = useRef({});
-  const exitAnims = useRef([]);
-  const [leavingIdx, setLeavingIdx] = useState(null);
-  const leaveTimer = useRef(0);
 
   const switchTo = useCallback(
     (next, entry = null) => {
       if (next === ui.pivot || next < 0 || next >= PIVOTS.length) return;
       pendingEntry.current = { dir: entry?.dir || (next > ui.pivot ? 'right' : 'left'), rect: entry?.rect || null };
       sound.play('pivot');
-      clearTimeout(leaveTimer.current);
-      setLeavingIdx(ui.pivot);
-      leaveTimer.current = setTimeout(() => setLeavingIdx(null), 240);
       ui.setPivot(next);
     },
     [ui],
@@ -87,11 +62,11 @@ export default function Dashboard() {
       return false;
     },
     onBack: () => {
-      if (index !== 1) switchTo(1);
+      if (index !== 0) switchTo(0);
     },
   });
 
-  // Remember the last focused tile per pivot.
+  // Remember the last focused tile per channel.
   useEffect(() => {
     const root = ref.current;
     const onFocusIn = (e) => {
@@ -108,59 +83,35 @@ export default function Dashboard() {
     prevRef.current = index;
     const root = ref.current;
     const page = pagesRef.current[index];
-    const old = pagesRef.current[prev];
     const pe = pendingEntry.current || { dir: index > prev ? 'right' : 'left', rect: null };
     pendingEntry.current = null;
-
-    if (!covered && page) {
-      const cands = pageCandidates(root, page);
-      let target = null;
-      if (pe.rect) target = entryCandidate(cands, pe.dir, pe.rect);
-      if (!target) {
-        const remembered = pivotFocus.current[PIVOTS[index].id];
-        target = remembered && cands.includes(remembered) ? remembered : cands.find((el) => el.hasAttribute('data-nav-default')) || cands[0];
-      }
-      if (target) mgr.focus(target, false);
+    if (covered || !page) return;
+    const cands = pageCandidates(root, page);
+    let target = null;
+    if (pe.rect) target = entryCandidate(cands, pe.dir, pe.rect);
+    if (!target) {
+      const remembered = pivotFocus.current[PIVOTS[index].id];
+      target = remembered && cands.includes(remembered) ? remembered : cands.find((el) => el.hasAttribute('data-nav-default')) || cands[0];
     }
-
-    exitAnims.current.forEach((a) => a.cancel());
-    exitAnims.current = [];
-    if (reduceMotion || !page) return;
-    const dx = pe.dir === 'right' ? 1 : -1;
-    if (old) {
-      exitAnims.current.push(
-        old.animate(
-          [
-            { opacity: 1, transform: 'translateX(0)' },
-            { opacity: 0, transform: `translateX(${-dx * 180}px)` },
-          ],
-          { duration: 220, easing: 'cubic-bezier(.5,0,.9,.6)', fill: 'forwards' },
-        ),
-      );
-    }
-    animateEntry(page, dx);
+    if (target) mgr.focus(target, false);
   }, [index]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Tiles fly in when the console finishes booting.
+  // Fade the dashboard in when the console finishes booting.
   const prevPower = useRef(ui.power);
   useLayoutEffect(() => {
     const was = prevPower.current;
     prevPower.current = ui.power;
-    if (was === 'on' || ui.power !== 'on' || reduceMotion) return;
-    const page = pagesRef.current[index];
-    if (page) animateEntry(page, 1, 120);
+    if (was === 'on' || ui.power !== 'on' || reduceMotion || !ref.current) return;
+    ref.current.animate(
+      [
+        { opacity: 0, transform: 'translateX(60px)' },
+        { opacity: 1, transform: 'none' },
+      ],
+      { duration: 600, easing: 'cubic-bezier(.1,.9,.2,1)' },
+    );
   }, [ui.power]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    if (leavingIdx === null) {
-      exitAnims.current.forEach((a) => a.cancel());
-      exitAnims.current = [];
-    }
-  }, [leavingIdx]);
-
-  useEffect(() => () => clearTimeout(leaveTimer.current), []);
-
-  // Mouse wheel + touch swipe move between pivots.
+  // Mouse wheel + touch swipe move between channels.
   const wheelLock = useRef(0);
   const onWheel = (e) => {
     if (covered) return;
@@ -224,17 +175,17 @@ export default function Dashboard() {
           </button>
         ))}
       </nav>
-      <div className="pages">
+      <div className={`strip ${reduceMotion ? 'no-anim' : ''}`} style={{ transform: `translate3d(${CONTENT_X - index * PAGE_PITCH}px, 0, 0)` }}>
         {PIVOTS.map((p, i) => {
           const current = i === index;
-          const leaving = i === leavingIdx && !current;
           const { Comp } = p;
           return (
             <section
               key={p.id}
               ref={(el) => (pagesRef.current[i] = el)}
               data-pivot={p.id}
-              className={`page ${current ? 'is-current' : leaving ? 'is-leaving' : 'is-off'}`}
+              className={`page page-${p.id} ${current ? 'is-current' : 'is-off'}`}
+              style={{ left: i * PAGE_PITCH }}
               inert={current ? undefined : true}
               aria-hidden={current ? undefined : true}
             >
@@ -242,6 +193,30 @@ export default function Dashboard() {
             </section>
           );
         })}
+      </div>
+      {index > 0 && (
+        <button
+          type="button"
+          tabIndex={-1}
+          className="peek peek-left"
+          aria-label={`Go to ${PIVOTS[index - 1].label}`}
+          onClick={() => switchTo(index - 1)}
+        />
+      )}
+      {index < PIVOTS.length - 1 && (
+        <button
+          type="button"
+          tabIndex={-1}
+          className="peek peek-right"
+          aria-label={`Go to ${PIVOTS[index + 1].label}`}
+          onClick={() => switchTo(index + 1)}
+        />
+      )}
+      <div className="dash-hints">
+        <button type="button" tabIndex={-1} className="hint" onClick={() => mgr.dispatch('a')}>
+          <Btn b="a" />
+          <span>Select</span>
+        </button>
       </div>
     </div>
   );

@@ -74,7 +74,7 @@ function GuidePanel() {
       if (action === 'y') {
         sound.play('select');
         ui.setGuideOpen(false);
-        ui.home(1);
+        ui.home(0);
         return true;
       }
       return false;
@@ -109,7 +109,7 @@ function GuidePanel() {
     });
     if (ok) {
       actions.setSignedIn(false);
-      ui.home(1);
+      ui.home(0);
       ui.notify({ kind: 'info', title: `${state.profile.gamertag} signed out`, icon: 'signin', force: true });
     }
   };
@@ -124,7 +124,7 @@ function GuidePanel() {
     });
     if (ok) {
       sound.play('power');
-      ui.home(1);
+      ui.home(0);
       ui.setPower('off');
     }
   };
@@ -144,7 +144,7 @@ function GuidePanel() {
       { id: 'g-market', label: 'Game Marketplace', icon: 'bag', run: go(() => ui.push('marketplace', { category: 'games' })) },
     ],
     home: [
-      { id: 'g-home', label: 'Xbox Home', icon: 'home', run: go(() => ui.home(1)) },
+      { id: 'g-home', label: 'Xbox Home', icon: 'home', run: go(() => ui.home(0)) },
       { id: 'g-msgs', label: 'Messages', value: unread ? `${unread} new` : null, icon: 'message', run: go(() => ui.push('messages')) },
       { id: 'g-profile', label: 'My Profile', icon: 'person', run: go(() => ui.push('profile')) },
       { id: 'g-beacons', label: 'Beacons & Activity', icon: 'beacon', run: go(() => ui.push('beacons')) },

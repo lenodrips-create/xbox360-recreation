@@ -39,7 +39,7 @@ npm run preview    # serves dist/ on http://localhost:4173
 | A | Enter or Space | Click / tap | Select |
 | B | Esc or Backspace | Right-click, or the **B Back** hint | Back |
 | X / Y | X / Y | Click the on-screen hint | Context actions (pin, delete, sort…) |
-| LB / RB | Q / E, Page Up / Page Down | Click a channel name, scroll wheel, swipe | Previous / next channel |
+| LB / RB | Q / E, Page Up / Page Down | Click a channel name or the peeking edge, scroll wheel, swipe | Previous / next channel |
 | Guide button | G or Home | Click your gamerpic | Open the Xbox Guide |
 | — | M | Guide → Settings | Mute / unmute dashboard sounds |
 | — | F1, H or ? | Settings → help & controls | Help overlay |
@@ -49,12 +49,17 @@ On the on-screen keyboard you can also simply type; Enter submits.
 
 ## What's inside
 
-- **Channels:** bing (search), home, social, games, apps, settings — with the
-  2011–2013 layout: big hero tile, rotating spotlight, quick tiles, avatar scene.
-- **Home:** last played, recent, pins, spotlight, Xbox LIVE Gold, marketplace promos.
-- **Social:** your avatar and three friends standing on the dashboard with activity
-  bubbles; friends list, friend profiles, compare games, messages (read, reply,
-  delete, compose), beacons & activity, party (invite friends, they join), sign in/out.
+- **Channels:** home, social and settings, matched to captures of the final
+  (2013–2015) dashboard: grey gradient, one sliding strip with the neighbouring
+  channel peeking in at the edges, solid white tile glyphs, the enlarge-and-brighten
+  selection, and the top-right status bar (friends online, messages, gamerscore,
+  gamer picture; account balance on settings).
+- **Home:** Play (last game), My Pins, a two-tile spotlight ad, Recent, My Games,
+  My Apps, Profile, Account.
+- **Social:** Friends, Activity Feed, Avatar Store, Sign In or Out, your gamertag,
+  gamerscore, avatar awards and avatar. Friends list, profiles, compare games,
+  messages (read, reply, delete, compose), party (invite friends, they join).
+- **Settings:** System, Profile, Preferences, Kinect, Account, Privacy, Family, Turn Off.
 - **Games:** My Games library (sort, pin), game detail pages, per-game and overall
   achievements, simulated install/delete, a launch screen that unlocks an achievement.
 - **Apps:** My Apps, app detail pages, launch placeholders.

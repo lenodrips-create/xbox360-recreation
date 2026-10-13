@@ -11,7 +11,6 @@ import Gamerpic from '../components/Gamerpic.jsx';
 import Icon from '../components/Icon.jsx';
 import { ProgressBar, Row, Screen, Stars, Tile } from '../components/ui.jsx';
 import { Empty, HScroll, InfoPanel, MenuList } from './common.jsx';
-import { runSearch } from '../pivots/BingPivot.jsx';
 
 // ---- Apps -------------------------------------------------------------------
 export function AppLibrary({ active }) {
@@ -327,6 +326,11 @@ export function Gold({ active }) {
   );
 }
 
+export async function runSearch(ui, initial = '') {
+  const q = await ui.keyboard({ title: 'Search', value: initial, maxLength: 40 });
+  if (q && q.trim()) ui.push('search', { q: q.trim() });
+}
+
 // ---- Search (bing) ----------------------------------------------------------
 const SETTINGS_INDEX = [
   ['Profile', 'settings.profile', 'person'],
@@ -379,7 +383,7 @@ export function Search({ active, params }) {
   return (
     <Screen
       active={active}
-      kicker="bing"
+      kicker="search"
       title={`“${params.q}”`}
       hints={[
         { btn: 'a', label: 'Select' },

@@ -3,10 +3,11 @@
    ========================================================================== */
 
 :root {
-  --green: #52a623;
-  --green-hi: #67bb32;
-  --green-lo: #3e8a17;
-  --green-glow: rgba(110, 200, 60, 0.55);
+  /* Tile green sampled from the 2013-2015 dashboard. */
+  --green: #408726;
+  --green-hi: #5ea845;
+  --green-lo: #346f1f;
+  --green-glow: rgba(110, 200, 60, 0.45);
   --ease-out: cubic-bezier(0.1, 0.9, 0.2, 1);
   --ease-std: cubic-bezier(0.4, 0, 0.2, 1);
   --font: 'Segoe UI', 'Open Sans', 'Selawik', 'Helvetica Neue', Arial, sans-serif;
@@ -119,6 +120,33 @@ p {
   --shadow-soft: none;
 }
 
+/* Default grey dashboard: white text, darker translucent rows. */
+.theme-gray {
+  --fg: #ffffff;
+  --fg-mid: rgba(255, 255, 255, 0.82);
+  --fg-dim: rgba(255, 255, 255, 0.55);
+  --row-bg: rgba(0, 0, 0, 0.2);
+  --row-bg-2: rgba(0, 0, 0, 0.12);
+  --panel-bg: rgba(0, 0, 0, 0.22);
+  --hair: rgba(255, 255, 255, 0.2);
+  --tile-dark: rgba(0, 0, 0, 0.45);
+  --tile-light: rgba(255, 255, 255, 0.86);
+  --tile-light-fg: #1d1d1d;
+  --shadow-soft: none;
+}
+
+.theme-gray .row-icon,
+.theme-gray .info-icon,
+.theme-gray .empty .icon {
+  color: #fff;
+}
+
+.theme-gray .screen-title,
+.theme-gray .pc-item,
+.theme-gray .social-tag {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
 /* ---- Background ------------------------------------------------------------ */
 .bg-root {
   position: absolute;
@@ -174,55 +202,74 @@ p {
   animation-play-state: paused !important;
 }
 
-/* ---- Profile corner ------------------------------------------------------- */
+/* ---- Status bar (top right) ------------------------------------------------ */
 .profile-corner {
   position: absolute;
   z-index: 30;
-  right: 144px;
-  top: 78px;
+  right: 82px;
+  top: 32px;
+  height: 56px;
   display: flex;
   align-items: center;
-  gap: 18px;
-  color: var(--fg);
+  gap: 38px;
+  color: #f3f3f3;
+  font-size: 30px;
+  font-weight: 400;
   transition: opacity 0.25s;
 }
 
-.pc-text {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  line-height: 1.15;
+.theme-light .profile-corner {
+  color: var(--fg);
 }
 
-.pc-tag {
-  font-size: 30px;
-  font-weight: 400;
-  letter-spacing: -0.2px;
-}
-
-.pc-score {
+.pc-item {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  font-size: 24px;
-  color: var(--fg-mid);
+  gap: 10px;
+  line-height: 1;
+  white-space: nowrap;
 }
 
-.pc-empty {
-  width: 80px;
-  height: 80px;
-  background: var(--row-bg);
+.pc-item .glyph {
+  width: 36px;
+  height: 36px;
 }
 
-.profile-corner:hover .gamerpic {
+.pc-item .g-badge {
+  color: #f3f3f3;
+}
+
+.pc-pic {
+  display: inline-flex;
+  width: 52px;
+  height: 52px;
+  margin-left: -6px;
+  border-radius: 4px;
+  overflow: hidden;
   box-shadow:
-    0 0 0 4px #fff,
-    0 6px 16px rgba(0, 0, 0, 0.3);
+    0 0 0 2px rgba(255, 255, 255, 0.85),
+    0 2px 6px rgba(0, 0, 0, 0.4);
+  background: #111;
+}
+
+.pc-pic .gamerpic {
+  display: block;
+}
+
+.profile-corner:hover .pc-pic {
+  box-shadow:
+    0 0 0 3px #fff,
+    0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .safe:has(.screen-launch) .profile-corner {
   opacity: 0;
   pointer-events: none;
+}
+
+.g-badge {
+  flex: none;
+  color: inherit;
 }
 
 /* ---- Gamerpic / art primitives -------------------------------------------- */
@@ -365,40 +412,38 @@ p {
   inset: 0;
   overflow: hidden;
   background-color: var(--green);
-  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 55%);
+  /* faint vertical grain seen on the console's tiles */
+  background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.009) 0 4px, rgba(0, 0, 0, 0.009) 4px 11px);
   transition: filter 0.15s;
 }
 
-/* Focus frame: a crisp white border hugging the tile, like the console. */
+/* Selected tile: grows, brightens toward the top-left and casts a shadow. */
+.tile {
+  transition: transform 0.16s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
 .tile::after {
   content: '';
   position: absolute;
-  inset: -7px;
-  border: 5px solid #fff;
+  inset: 0;
   opacity: 0;
-  transform: scale(0.985);
-  transition:
-    opacity 0.12s ease,
-    transform 0.2s var(--ease-out);
   pointer-events: none;
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.2),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.12),
-    0 10px 28px rgba(0, 0, 0, 0.3);
   z-index: 2;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.08) 38%, rgba(255, 255, 255, 0) 62%);
+  transition: opacity 0.16s ease;
 }
 
 .tile:focus {
   z-index: 3;
+  transform: scale(var(--focus-scale, 1.08));
+}
+
+.tile:focus .tile-face {
+  box-shadow: 4px 6px 18px rgba(0, 0, 0, 0.45);
 }
 
 .tile:focus::after {
   opacity: 1;
-  transform: none;
-}
-
-.tile:focus .tile-face {
-  filter: brightness(1.06);
 }
 
 .tile.is-pressed,
@@ -413,7 +458,17 @@ p {
 
 @keyframes press {
   45% {
-    transform: scale(0.965);
+    transform: scale(0.97);
+  }
+}
+
+.tile:focus.is-pressed {
+  animation: pressFocused 0.18s var(--ease-std);
+}
+
+@keyframes pressFocused {
+  45% {
+    transform: scale(calc(var(--focus-scale, 1.08) - 0.04));
   }
 }
 
@@ -427,13 +482,13 @@ p {
 
 .tile-label {
   position: absolute;
-  left: 18px;
-  right: 16px;
-  bottom: 13px;
-  font-size: 25px;
+  left: 16px;
+  right: 14px;
+  bottom: 12px;
+  font-size: 26px;
   line-height: 1.1;
   font-weight: 400;
-  letter-spacing: -0.1px;
+  letter-spacing: 0.1px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -756,8 +811,8 @@ p {
 /* ---- Controller button glyphs + hints ------------------------------------- */
 .hints {
   position: absolute;
-  left: 144px;
-  bottom: 70px;
+  left: 160px;
+  bottom: 94px;
   display: flex;
   gap: 34px;
   z-index: 5;
@@ -766,9 +821,9 @@ p {
 .hint {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-size: 23px;
-  color: var(--fg-mid);
+  gap: 12px;
+  font-size: 27px;
+  color: var(--fg);
   transition: color 0.15s;
 }
 
@@ -780,33 +835,33 @@ p {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 34px;
-  height: 34px;
+  min-width: 36px;
+  height: 36px;
   padding: 0 6px;
-  border-radius: 17px;
-  font-size: 19px;
+  border-radius: 18px;
+  font-size: 21px;
   font-weight: 600;
   color: #fff;
-  background: radial-gradient(circle at 35% 30%, #6e6e6e, #262626 70%);
+  background: radial-gradient(circle at 40% 30%, #8a8a8a, #3a3a3a 75%);
   box-shadow:
-    inset 0 -2px 0 rgba(0, 0, 0, 0.35),
-    0 1px 2px rgba(0, 0, 0, 0.35);
+    inset 0 -2px 0 rgba(0, 0, 0, 0.2),
+    0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .btn-a {
-  color: #8fe05a;
+  background: radial-gradient(circle at 40% 30%, #8ed062, #46a22a 70%);
 }
 
 .btn-b {
-  color: #ff6b5e;
+  background: radial-gradient(circle at 40% 30%, #f07a6c, #c9322a 70%);
 }
 
 .btn-x {
-  color: #6aaeff;
+  background: radial-gradient(circle at 40% 30%, #6fb0f4, #2368c4 70%);
 }
 
 .btn-y {
-  color: #ffd54a;
+  background: radial-gradient(circle at 40% 30%, #ffe27a, #d9a400 70%);
 }
 
 .btn-lb,

@@ -4,7 +4,8 @@ import { gamerscoreOf, useStore } from '../state/store.jsx';
 import { useUI } from '../state/ui.jsx';
 import { sound } from '../audio/sound.js';
 import Gamerpic from './Gamerpic.jsx';
-import { GIcon } from './ui.jsx';
+import Glyph, { GBadge } from './Glyph.jsx';
+import { FRIENDS } from '../data/social.js';
 
 // ---- Theme background (cross-fades between themes) -----------------------
 const Ribbons = memo(function Ribbons({ color, opacity }) {
@@ -57,7 +58,7 @@ export function Background() {
         const theme = THEME_BY_ID[l.id] || THEME_BY_ID.default;
         return (
           <div key={l.key} className={`bg-layer ${i > 0 ? 'is-new' : ''} ${theme.drift ? 'is-drift' : ''}`} style={{ background: theme.base }}>
-            <Ribbons color={theme.ribbons} opacity={theme.ribbonOpacity} />
+            {theme.ribbons && <Ribbons color={theme.ribbons} opacity={theme.ribbonOpacity} />}
           </div>
         );
       })}
@@ -65,50 +66,45 @@ export function Background() {
   );
 }
 
-// ---- Profile corner (top right) -----------------------------------------
+// ---- Status bar (top right) ---------------------------------------------
+// Friends online, unread messages, gamerscore and gamer picture. The
+// settings channel shows the account balance instead, like the console.
 export function ProfileCorner() {
   const { state } = useStore();
   const ui = useUI();
   const score = useMemo(() => gamerscoreOf(state.unlocked), [state.unlocked]);
   const { profile } = state;
-  if (!state.signedIn) {
-    return (
-      <button
-        type="button"
-        tabIndex={-1}
-        className="profile-corner is-out"
-        onClick={() => {
-          sound.play('select');
-          ui.push('signin');
-        }}
-      >
-        <span className="pc-text">
-          <span className="pc-tag">Sign In</span>
-          <span className="pc-score">Not signed in</span>
-        </span>
-        <span className="pc-empty" />
-      </button>
-    );
-  }
+  const online = FRIENDS.filter((f) => !state.removedFriends.includes(f.id) && ui.presence[f.id]?.presence === 'online').length;
+  const unread = state.messages.filter((m) => !m.read).length;
+  const onSettings = ui.pivot === 2 && ui.stack.length === 0;
+  const open = () => {
+    sound.play(state.signedIn ? 'guide' : 'select');
+    if (state.signedIn) ui.setGuideOpen(true);
+    else ui.push('signin');
+  };
   return (
-    <button
-      type="button"
-      tabIndex={-1}
-      className="profile-corner"
-      title="Open the Xbox Guide (G)"
-      onClick={() => {
-        sound.play('guide');
-        ui.setGuideOpen(true);
-      }}
-    >
-      <span className="pc-text">
-        <span className="pc-tag">{profile.gamertag}</span>
-        <span className="pc-score">
-          <GIcon size={22} />
-          {score.toLocaleString('en-US')}
-        </span>
-      </span>
-      <Gamerpic id={profile.gamerpic} avatar={profile.avatar} size={80} />
+    <button type="button" tabIndex={-1} className="profile-corner" title="Open the Xbox Guide (G)" onClick={open}>
+      {!state.signedIn ? (
+        <span className="pc-item">Sign In</span>
+      ) : onSettings ? (
+        <span className="pc-item pc-balance">You have ${(profile.balance ?? 0).toFixed(2)}</span>
+      ) : (
+        <>
+          <span className="pc-item">
+            <Glyph name="friends" size={30} />
+            {online}
+          </span>
+          <span className="pc-item">
+            <Glyph name="mail" size={30} />
+            {unread}
+          </span>
+          <span className="pc-item">
+            {score.toLocaleString('en-US')}
+            <GBadge size={26} />
+          </span>
+        </>
+      )}
+      <span className="pc-pic">{state.signedIn ? <Gamerpic id={profile.gamerpic} avatar={profile.avatar} size={52} /> : null}</span>
     </button>
   );
 }

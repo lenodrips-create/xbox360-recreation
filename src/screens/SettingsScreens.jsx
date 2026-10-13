@@ -191,7 +191,7 @@ export function SystemSettings({ active }) {
     if (ok) {
       actions.reset();
       ui.setParty(null);
-      ui.home(1);
+      ui.home(0);
       ui.notify({ kind: 'info', title: 'Defaults restored', text: 'Everything is back to factory settings', icon: 'refresh', force: true });
     }
   };
@@ -231,7 +231,7 @@ export function SystemSettings({ active }) {
       icon: 'refresh',
       desc: 'Replay the start-up sequence.',
       onSelect: () => {
-        ui.home(1);
+        ui.home(0);
         ui.setPower('booting');
       },
     },

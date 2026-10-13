@@ -22,6 +22,7 @@ export function createDefaultState() {
       tier: 'gold',
       memberSince: 2006,
       points: 1600,
+      balance: 0,
     },
     settings: {
       theme: 'default',
