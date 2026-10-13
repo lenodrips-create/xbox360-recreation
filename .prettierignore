@@ -1,0 +1,6 @@
+dist
+node_modules
+public
+package-lock.json
+# Generated glyph data: one icon per line
+src/data/icons.js

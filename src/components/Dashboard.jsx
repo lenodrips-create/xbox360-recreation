@@ -17,7 +17,7 @@ const HEADER_X = [
   [190, 373, 549],
 ];
 
-export const PIVOTS = [
+const PIVOTS = [
   { id: 'home', label: 'home', Comp: HomePivot },
   { id: 'social', label: 'social', Comp: SocialPivot },
   { id: 'settings', label: 'settings', Comp: SettingsPivot },

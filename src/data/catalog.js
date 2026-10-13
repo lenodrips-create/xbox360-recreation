@@ -56,30 +56,3 @@ MARKET_CATEGORIES.forEach((cat, ci) => {
 });
 
 export const OFFER_BY_ID = Object.fromEntries(OFFERS.map((o) => [o.id, o]));
-
-export const SPOTLIGHT = [
-  {
-    id: 'spot-1',
-    title: 'Featured Placeholder',
-    sub: 'Spotlight content slot 1',
-    hue: 212,
-    motif: 'burst',
-    target: { type: 'offer', id: 'games-01' },
-  },
-  {
-    id: 'spot-2',
-    title: 'Deal of the Week',
-    sub: 'Spotlight content slot 2',
-    hue: 18,
-    motif: 'waves',
-    target: { type: 'marketplace', category: 'arcade' },
-  },
-  {
-    id: 'spot-3',
-    title: 'New Arrivals',
-    sub: 'Spotlight content slot 3',
-    hue: 285,
-    motif: 'rings',
-    target: { type: 'marketplace', category: 'games' },
-  },
-];

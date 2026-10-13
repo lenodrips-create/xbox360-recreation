@@ -32,7 +32,7 @@ export const KEYMAP = {
 };
 
 // Standard gamepad mapping (Xbox 360 / Xbox controllers on most browsers).
-export const PAD_BUTTONS = {
+const PAD_BUTTONS = {
   0: 'a',
   1: 'b',
   2: 'x',

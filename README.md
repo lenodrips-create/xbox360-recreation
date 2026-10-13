@@ -17,7 +17,6 @@ content later.
 > captures supplied by the project owner and belong to their respective rights
 > holders; everything else is drawn with CSS/SVG or synthesized.
 
-
 ## Project layout
 
 ```
@@ -28,7 +27,7 @@ src/
   audio/sound.js          Web Audio sound effects
   data/                   placeholder games/apps/offers, fictional friends/messages, themes
   components/             tiles, rows, avatar + gamerpic SVGs, placeholder art, dashboard chrome
-  pivots/                 the six dashboard channels
+  pivots/                 the three dashboard channels: home, social, settings
   screens/                every sub-screen (registry.js maps ids → components)
   overlays/               Guide, dialogs, keyboard, toasts, help, boot/power
   styles/                 base tokens, dashboard grid, screens, overlays
@@ -37,3 +36,10 @@ src/
 The UI is laid out at a fixed 1920×1080 and scaled to fit the window (letterboxed on
 other aspect ratios), so proportions match a 16:9 TV at any size.
 
+## Credits
+
+- **[lenodrips-create](https://github.com/lenodrips-create)**: project owner. Concept and
+  direction, and the reference captures the dashboard is matched against.
+- **Gunner Castle**: repository cleanup, the `main` branch, linting and formatting setup.
+- **Claude** (Anthropic, via Claude Code): wrote the application code from the owner's
+  direction and captures.

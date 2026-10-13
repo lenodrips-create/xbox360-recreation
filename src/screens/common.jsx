@@ -3,7 +3,7 @@ import Icon from '../components/Icon.jsx';
 import { OptionRow, Row, Screen, SliderRow, ToggleRow } from '../components/ui.jsx';
 
 // Renders one menu item description as the matching row component.
-export function MenuItem({ item, onFocus, isDefault }) {
+function MenuItem({ item, onFocus, isDefault }) {
   const common = { id: item.id, label: item.label, onFocus, isDefault };
   switch (item.kind) {
     case 'toggle':

@@ -7,7 +7,7 @@ import { useStore } from './store.jsx';
 // Xbox LIVE presence. Nothing in here is persisted.
 const UIContext = createContext(null);
 
-export const EXIT_MS = 260;
+const EXIT_MS = 260;
 
 export function UIProvider({ children }) {
   const { state } = useStore();

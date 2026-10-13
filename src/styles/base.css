@@ -443,7 +443,6 @@ p {
 
 .tile.is-pressed,
 .row.is-pressed,
-.scene-av.is-pressed,
 .osk-key.is-pressed,
 .theme-card.is-pressed,
 .pic-card.is-pressed,
@@ -567,21 +566,6 @@ p {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.art-label-lg {
-  font-size: 30px;
-  font-weight: 300;
-}
-
-.art-kicker {
-  position: absolute;
-  left: 18px;
-  top: 14px;
-  z-index: 1;
-  font-size: 18px;
-  text-transform: lowercase;
-  opacity: 0.85;
 }
 
 .tile-progress {
@@ -962,8 +946,7 @@ p {
   transform-box: view-box;
 }
 
-.avatar.pose-wave .av-arm-r,
-.scene-av:focus .avatar .av-arm-r {
+.avatar.pose-wave .av-arm-r {
   animation: avWave 1.4s ease-in-out 2;
 }
 

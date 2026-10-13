@@ -18,9 +18,7 @@ export default function Glyph({ name, size = 64, tight = false, className = '', 
   if (!icon) return null;
   const [x, y, w, h] = icon.b;
   const side = Math.max(w, h);
-  const vb = tight
-    ? `${x} ${y} ${w} ${h}`
-    : `${(x - (side - w) / 2).toFixed(2)} ${(y - (side - h) / 2).toFixed(2)} ${side} ${side}`;
+  const vb = tight ? `${x} ${y} ${w} ${h}` : `${(x - (side - w) / 2).toFixed(2)} ${(y - (side - h) / 2).toFixed(2)} ${side} ${side}`;
   const width = tight ? (size * w) / side : size;
   const height = tight ? (size * h) / side : size;
   return (

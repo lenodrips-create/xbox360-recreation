@@ -53,8 +53,7 @@ function sample(name, gain = 1) {
   return true;
 }
 
-const activated = () =>
-  typeof navigator === 'undefined' || !navigator.userActivation || navigator.userActivation.hasBeenActive;
+const activated = () => typeof navigator === 'undefined' || !navigator.userActivation || navigator.userActivation.hasBeenActive;
 
 function ensureContext() {
   if (ctx) return ctx;

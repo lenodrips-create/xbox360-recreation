@@ -5,7 +5,7 @@ import { seedMessages } from '../data/social.js';
 
 const STORAGE_KEY = 'x360-metro-dashboard:v1';
 
-export function createDefaultState() {
+function createDefaultState() {
   return {
     version: 2,
     signedIn: true,

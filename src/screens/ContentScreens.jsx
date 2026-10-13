@@ -326,7 +326,7 @@ export function Gold({ active }) {
   );
 }
 
-export async function runSearch(ui, initial = '') {
+async function runSearch(ui, initial = '') {
   const q = await ui.keyboard({ title: 'Search', value: initial, maxLength: 40 });
   if (q && q.trim()) ui.push('search', { q: q.trim() });
 }

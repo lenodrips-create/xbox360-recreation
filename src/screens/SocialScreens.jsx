@@ -149,7 +149,7 @@ export function Friends({ active, params }) {
 }
 
 // ---- Party ------------------------------------------------------------------
-export function inviteToParty(ui, f) {
+function inviteToParty(ui, f) {
   if (!f) return;
   const party = ui.party || { members: [], invited: [] };
   if (party.members.includes(f.id)) {

@@ -3,7 +3,7 @@ import { GAMES, GAME_BY_ID } from '../data/games.js';
 import { APP_BY_ID } from '../data/catalog.js';
 import { gameProgress, gamerscoreOf, useStore } from '../state/store.jsx';
 import { useUI } from '../state/ui.jsx';
-import { parseKey } from '../state/content.js';
+import { openContent, parseKey } from '../state/content.js';
 import { sound } from '../audio/sound.js';
 import { useLayer } from '../nav/NavProvider.jsx';
 import { AppIcon, BoxArt } from '../components/Art.jsx';
@@ -13,7 +13,7 @@ import { Empty, HScroll } from './common.jsx';
 
 const ACH_GLYPHS = ['trophy', 'star', 'bolt', 'controller', 'friends', 'clock', 'gold', 'globe'];
 
-export function AchievementIcon({ game, ach, unlocked, size = 64 }) {
+function AchievementIcon({ game, ach, unlocked, size = 64 }) {
   return (
     <span className={`ach-icon ${unlocked ? '' : 'is-locked'}`} style={{ width: size, height: size, '--h': game.hue + (ach.icon % 4) * 18 }}>
       <Icon name={unlocked ? ACH_GLYPHS[ach.icon % ACH_GLYPHS.length] : 'lock'} size={size * 0.62} strokeWidth={2.4} />
@@ -527,14 +527,7 @@ export function Recent({ active, params }) {
       ) : (
         <HScroll rows={2}>
           {keys.map((k, i) => (
-            <ContentTile
-              key={k}
-              itemKey={k}
-              idPrefix="rec"
-              isDefault={i === 0}
-              pinned={state.pins.includes(k)}
-              onSelect={() => ui.push(parseKey(k).type, { id: parseKey(k).id })}
-            />
+            <ContentTile key={k} itemKey={k} idPrefix="rec" isDefault={i === 0} pinned={state.pins.includes(k)} onSelect={() => openContent(ui, k)} />
           ))}
         </HScroll>
       )}
@@ -575,7 +568,7 @@ export function Pins({ active }) {
       ) : (
         <HScroll rows={2}>
           {state.pins.map((k, i) => (
-            <ContentTile key={k} itemKey={k} idPrefix="pin" isDefault={i === 0} onSelect={() => ui.push(parseKey(k).type, { id: parseKey(k).id })} />
+            <ContentTile key={k} itemKey={k} idPrefix="pin" isDefault={i === 0} onSelect={() => openContent(ui, k)} />
           ))}
         </HScroll>
       )}

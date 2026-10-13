@@ -213,7 +213,7 @@ export function ButtonHints({ hints }) {
   );
 }
 
-export const DEFAULT_HINTS = [
+const DEFAULT_HINTS = [
   { btn: 'a', label: 'Select' },
   { btn: 'b', label: 'Back' },
 ];

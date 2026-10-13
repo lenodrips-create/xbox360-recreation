@@ -154,7 +154,7 @@ class LayerManager {
   }
 }
 
-export function pressFx(el) {
+function pressFx(el) {
   el.classList.remove('is-pressed');
   // Force reflow so the animation restarts on repeated presses.
   void el.offsetWidth;

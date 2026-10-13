@@ -10,8 +10,6 @@ import Icon from '../components/Icon.jsx';
 import { GIcon, ProgressBar, Row, Screen } from '../components/ui.jsx';
 import { InfoPanel, MenuScreen } from './common.jsx';
 
-const onOff = (v) => (v ? 'On' : 'Off');
-
 // ---- Profile ------------------------------------------------------------------
 export function ProfileSettings({ active }) {
   const ui = useUI();

@@ -12,15 +12,7 @@ const AWARD_NAMES = ['Bone', 'Iron Sword', 'Pickaxe', 'Crafting Table', 'Wood Bl
 // hover sound) but nothing opens another screen.
 function SocialButton({ id, className = '', label, children }) {
   return (
-    <button
-      type="button"
-      tabIndex={-1}
-      data-nav=""
-      data-nav-id={id}
-      data-anim=""
-      aria-label={label}
-      className={`soc-btn ${className}`}
-    >
+    <button type="button" tabIndex={-1} data-nav="" data-nav-id={id} data-anim="" aria-label={label} className={`soc-btn ${className}`}>
       {children}
     </button>
   );
@@ -64,13 +56,7 @@ export default function SocialPivot() {
               <img src={REF.awards[i]} alt="" draggable={false} />
             </SocialButton>
           ) : (
-            <SocialButton
-              key={i}
-              id={`soc-award-${i + 1}`}
-              className="award is-empty"
-              label="Empty award slot"
-             
-            />
+            <SocialButton key={i} id={`soc-award-${i + 1}`} className="award is-empty" label="Empty award slot" />
           ),
         )}
       </div>

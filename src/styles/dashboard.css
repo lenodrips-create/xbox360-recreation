@@ -208,14 +208,6 @@
   margin: -5px;
 }
 
-.ad-placeholder {
-  position: absolute;
-  left: 16px;
-  bottom: 12px;
-  font-size: 20px;
-  color: rgba(255, 255, 255, 0.6);
-}
-
 .tile-promo .tile-face {
   background: #1a1c1a;
 }
