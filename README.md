@@ -72,7 +72,7 @@ On the on-screen keyboard you can also simply type; Enter submits.
   storage (hard drive breakdown, delete/reinstall games, clear cache), network test,
   preferences, account, family settings, **Restore Defaults**.
 - **Intro:** the console start-up video plays full screen on load and when turning the
-  console back on It always plays to the end. Browsers may start it muted until you click.
+  console back on. It always plays to the end. Browsers may start it muted until you click.
 - **Overlays:** the Xbox Guide (Media, Games & Apps, Home, Friends & Party, Settings),
   full-width system dialogs, on-screen keyboard, toast notifications (sign-in,
   achievements, friends online, messages), help, boot animation and "turn off console".
