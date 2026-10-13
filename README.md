@@ -15,72 +15,6 @@ content later.
 > come from reference captures supplied by the project owner and belong to their
 > respective rights holders; everything else is drawn with CSS/SVG or synthesized.
 
-## Run it
-
-Requires Node.js 20.19+ (or 22+).
-
-```bash
-npm install
-npm run dev        # http://localhost:5173
-```
-
-Production build:
-
-```bash
-npm run build      # outputs dist/
-npm run preview    # serves dist/ on http://localhost:4173
-```
-
-`dist/` uses relative paths, so it can be dropped onto any static host.
-
-## Controls
-
-| Controller | Keyboard | Mouse / touch | Action |
-| --- | --- | --- | --- |
-| D-pad / left stick | Arrow keys | Hover | Move the selection |
-| A | Enter or Space | Click / tap | Select |
-| B | Esc or Backspace | Right-click, or the **B Back** hint | Back |
-| X / Y | X / Y | Click the on-screen hint | Context actions (pin, delete, sort…) |
-| LB / RB | Q / E, Page Up / Page Down | Click a channel name or the peeking edge, scroll wheel, swipe | Previous / next channel |
-| Guide button | G or Home | Click your gamerpic | Open the Xbox Guide |
-| — | M | Guide → Settings | Mute / unmute dashboard sounds |
-| — | F1, H or ? | Settings → help & controls | Help overlay |
-
-A connected Xbox controller works through the browser Gamepad API.
-On the on-screen keyboard you can also simply type; Enter submits.
-
-## What's inside
-
-- **Channels:** home, social and settings, matched to captures of the final
-  (2013–2015) dashboard: grey gradient, one sliding strip with the neighbouring
-  channel peeking in at the edges, solid white tile glyphs, the enlarge-and-brighten
-  selection, and the top-right status bar (friends online, messages, gamerscore,
-  gamer picture; account balance on settings).
-- **Home:** Play (last game), My Pins, a two-tile spotlight ad, Recent, My Games,
-  My Apps, Profile, Account.
-- **Social:** Friends, Activity Feed, Avatar Store, Sign In or Out, your gamertag,
-  gamerscore, avatar awards and avatar. Friends list, profiles, compare games,
-  messages (read, reply, delete, compose), party (invite friends, they join).
-- **Settings:** System, Profile, Preferences, Kinect, Account, Privacy, Family, Turn Off.
-- **Games:** My Games library (sort, pin), game detail pages, per-game and overall
-  achievements, simulated install/delete, a launch screen that unlocks an achievement.
-- **Apps:** My Apps, app detail pages, launch placeholders.
-- **Marketplace:** categories and offers with simulated downloads.
-- **Settings:** profile (gamertag, motto, bio, gamer picture, privacy), avatar editor,
-  themes (9 CSS-generated themes, light and dark), system → console settings
-  (display brightness/contrast/screen size, audio, language, clock, power, system info),
-  storage (hard drive breakdown, delete/reinstall games, clear cache), network test,
-  preferences, account, family settings, **Restore Defaults**.
-- **Intro:** the console start-up video plays full screen on load and when turning the
-  console back on. It always plays to the end. Browsers may start it muted until you click.
-- **Overlays:** the Xbox Guide (Media, Games & Apps, Home, Friends & Party, Settings),
-  full-width system dialogs, on-screen keyboard, toast notifications (sign-in,
-  achievements, friends online, messages), help, boot animation and "turn off console".
-- **Sounds:** synthesized with the Web Audio API (navigation ticks, select, back,
-  channel swoosh, notification and achievement chimes). Toggle with **M**.
-- **Persistence:** profile, avatar, theme, settings, pins, achievements, messages and
-  storage changes are saved to `localStorage`. *Settings → System → Restore Defaults*
-  (or *Preferences → Restore Defaults*) resets everything.
 
 ## Project layout
 
@@ -101,16 +35,3 @@ src/
 The UI is laid out at a fixed 1920×1080 and scaled to fit the window (letterboxed on
 other aspect ratios), so proportions match a 16:9 TV at any size.
 
-### Adding real games or apps later
-
-Edit `src/data/games.js` and `src/data/catalog.js`. Each entry has a title, metadata,
-description and art parameters; achievements are generated per game and can be replaced
-with a hand-written list.
-
-## Notes
-
-- Everything is offline and simulated: there are no network requests to any Xbox or
-  Microsoft service.
-- Gamertags, friends, messages and offers are fictional.
-- Text uses Segoe UI where available (Windows) and falls back to the bundled Open Sans,
-  a close humanist match.
