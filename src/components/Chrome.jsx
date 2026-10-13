@@ -91,20 +91,20 @@ export function ProfileCorner() {
       ) : (
         <>
           <span className="pc-item">
-            <Glyph name="friends" size={30} />
+            <Glyph name="bar-friends" size={29} tight />
             {online}
           </span>
           <span className="pc-item">
-            <Glyph name="mail" size={30} />
+            <Glyph name="bar-mail" size={29} tight />
             {unread}
           </span>
           <span className="pc-item">
             {score.toLocaleString('en-US')}
-            <GBadge size={26} />
+            <GBadge size={24} />
           </span>
         </>
       )}
-      <span className="pc-pic">{state.signedIn ? <Gamerpic id={profile.gamerpic} avatar={profile.avatar} size={52} /> : null}</span>
+      <span className="pc-pic">{state.signedIn ? <Gamerpic id={profile.gamerpic} avatar={profile.avatar} size={46} /> : null}</span>
     </button>
   );
 }

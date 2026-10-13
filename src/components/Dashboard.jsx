@@ -9,6 +9,14 @@ import SocialPivot from '../pivots/SocialPivot.jsx';
 import SettingsPivot from '../pivots/SettingsPivot.jsx';
 import { Btn } from './ui.jsx';
 
+// Left edge of each channel name for each selected channel, measured from
+// the captures: the header row drifts left as you move right.
+const HEADER_X = [
+  [251, 437, 623],
+  [239, 417, 608],
+  [190, 373, 549],
+];
+
 export const PIVOTS = [
   { id: 'home', label: 'home', Comp: HomePivot },
   { id: 'social', label: 'social', Comp: SocialPivot },
@@ -151,7 +159,7 @@ export default function Dashboard() {
   return (
     <div
       ref={ref}
-      className={`dash ${covered ? 'is-covered' : ''}`}
+      className={`dash pv-${PIVOTS[index].id} ${covered ? 'is-covered' : ''}`}
       inert={covered ? true : undefined}
       onWheel={onWheel}
       onPointerDown={onPointerDown}
@@ -166,6 +174,7 @@ export default function Dashboard() {
             type="button"
             tabIndex={-1}
             className={`pivot-h ${i === index ? 'is-active' : ''}`}
+            style={{ transform: `translate3d(${HEADER_X[index][i]}px,0,0)` }}
             onClick={() => {
               sound.unlock();
               switchTo(i);

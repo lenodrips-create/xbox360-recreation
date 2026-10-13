@@ -1,12 +1,60 @@
-// Dashboard sound effects, synthesized at runtime with the Web Audio API.
-// No recorded audio is shipped: every blip, swoosh and chime below is an
-// original synthesized approximation of the feel of the console menus.
+// Dashboard sound effects played through the Web Audio API.
+// Moving the selection and selecting use the recorded console sounds in
+// public/sfx/ (hover.wav, select.wav); the remaining cues are synthesized.
 
 let ctx = null;
 let master = null;
+let direct = null; // recorded samples bypass the compressor
 let enabled = true;
 let volume = 0.7;
 let lastPlayed = {};
+
+// Recorded samples: fetched up front, decoded once an AudioContext exists.
+const SAMPLE_URLS = {
+  hover: `${import.meta.env.BASE_URL}sfx/hover.wav`,
+  select: `${import.meta.env.BASE_URL}sfx/select.wav`,
+};
+const sampleData = {};
+const samples = {};
+if (typeof fetch === 'function') {
+  for (const [name, url] of Object.entries(SAMPLE_URLS)) {
+    sampleData[name] = fetch(url)
+      .then((r) => (r.ok ? r.arrayBuffer() : null))
+      .catch(() => null);
+  }
+}
+
+function decodeSamples(c) {
+  for (const [name, data] of Object.entries(sampleData)) {
+    data
+      .then((buf) => (buf ? c.decodeAudioData(buf.slice(0)) : null))
+      .then((decoded) => {
+        if (decoded) samples[name] = decoded;
+      })
+      .catch(() => {});
+  }
+}
+
+const lastSample = {};
+function sample(name, gain = 1) {
+  const buf = samples[name];
+  if (!buf) return false;
+  // Several cues map to the same sample; never stack it on one press.
+  const now = performance.now();
+  if (now - (lastSample[name] || 0) < 60) return true;
+  lastSample[name] = now;
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const g = ctx.createGain();
+  g.gain.value = gain;
+  src.connect(g);
+  g.connect(direct);
+  src.start();
+  return true;
+}
+
+const activated = () =>
+  typeof navigator === 'undefined' || !navigator.userActivation || navigator.userActivation.hasBeenActive;
 
 function ensureContext() {
   if (ctx) return ctx;
@@ -21,6 +69,10 @@ function ensureContext() {
     comp.ratio.value = 4;
     master.connect(comp);
     comp.connect(ctx.destination);
+    direct = ctx.createGain();
+    direct.gain.value = volume;
+    direct.connect(ctx.destination);
+    decodeSamples(ctx);
   } catch {
     ctx = null;
   }
@@ -71,13 +123,14 @@ function noise({ at = 0, dur = 0.2, from = 500, to = 2500, q = 1.2, gain = 0.15,
 
 const SOUNDS = {
   move() {
+    if (sample('hover')) return;
     tone(1480, { dur: 0.05, gain: 0.07, type: 'triangle' });
-    noise({ dur: 0.03, from: 5000, to: 3000, gain: 0.03, q: 2 });
   },
   hover() {
-    tone(1480, { dur: 0.04, gain: 0.035, type: 'triangle' });
+    SOUNDS.move();
   },
   select() {
+    if (sample('select')) return;
     tone(784, { dur: 0.07, gain: 0.12, type: 'triangle' });
     tone(1175, { at: 0.045, dur: 0.12, gain: 0.11, type: 'sine' });
   },
@@ -89,6 +142,7 @@ const SOUNDS = {
     tone(520, { dur: 0.1, gain: 0.04, type: 'sine', to: 760 });
   },
   open() {
+    if (sample('select')) return;
     tone(523, { dur: 0.08, gain: 0.08, type: 'sine' });
     tone(784, { at: 0.05, dur: 0.16, gain: 0.08, type: 'sine' });
     noise({ dur: 0.18, from: 900, to: 4000, gain: 0.04 });
@@ -103,10 +157,12 @@ const SOUNDS = {
     noise({ dur: 0.18, from: 3000, to: 700, gain: 0.04 });
   },
   toggle() {
+    if (sample('select')) return;
     tone(988, { dur: 0.05, gain: 0.08, type: 'square' });
     tone(1318, { at: 0.04, dur: 0.06, gain: 0.05, type: 'triangle' });
   },
   key() {
+    if (sample('select', 0.8)) return;
     tone(1900, { dur: 0.03, gain: 0.05, type: 'triangle' });
   },
   error() {
@@ -138,6 +194,9 @@ const SOUNDS = {
 
 export const sound = {
   unlock() {
+    // Creating the context before the first click or key press only earns a
+    // console warning; wait for the page's first user activation.
+    if (!activated()) return;
     const c = ensureContext();
     if (c && c.state === 'suspended') c.resume().catch(() => {});
   },
@@ -147,9 +206,10 @@ export const sound = {
   setVolume(v) {
     volume = Math.max(0, Math.min(1, v));
     if (master && ctx) master.gain.setTargetAtTime(volume, ctx.currentTime, 0.02);
+    if (direct && ctx) direct.gain.setTargetAtTime(volume, ctx.currentTime, 0.02);
   },
   play(name, { force = false } = {}) {
-    if ((!enabled && !force) || !SOUNDS[name]) return;
+    if ((!enabled && !force) || !SOUNDS[name] || !activated()) return;
     const c = ensureContext();
     if (!c || c.state !== 'running') return;
     const now = performance.now();

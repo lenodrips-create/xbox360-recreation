@@ -10,10 +10,12 @@ Games and apps are **placeholders** for now. Every slot is clearly labelled
 content later.
 
 > Not affiliated with or endorsed by Microsoft. Xbox, Xbox 360 and Xbox LIVE are
-> trademarks of Microsoft. The intro video (`public/intro.*`) and the images in
-> `public/ref/` (Play tile, spotlight, QR code, avatar, avatar awards, gamer picture)
-> come from reference captures supplied by the project owner and belong to their
-> respective rights holders; everything else is drawn with CSS/SVG or synthesized.
+> trademarks of Microsoft. The intro video (`public/intro.*`), the menu sounds
+> (`public/sfx/`), the images in `public/ref/` (Play tile, spotlight, promo
+> background, QR code, avatar, avatar awards, gamer picture) and the tile/status-bar
+> glyphs (`src/data/icons.js`, traced from the captures) come from reference
+> captures supplied by the project owner and belong to their respective rights
+> holders; everything else is drawn with CSS/SVG or synthesized.
 
 ## Run it
 
@@ -59,7 +61,9 @@ On the on-screen keyboard you can also simply type; Enter submits.
 - **Home:** Play (last game), My Pins, a two-tile spotlight ad, Recent, My Games,
   My Apps, Profile, Account.
 - **Social:** Friends, Activity Feed, Avatar Store, Sign In or Out, your gamertag,
-  gamerscore, avatar awards and avatar. Friends list, profiles, compare games,
+  gamerscore, avatar awards and avatar. Every item can be selected (it zooms and
+  plays the hover sound) but none of them opens another screen. Friends, messages
+  and party are reached through the Guide: friends list, profiles, compare games,
   messages (read, reply, delete, compose), party (invite friends, they join).
 - **Settings:** System, Profile, Preferences, Kinect, Account, Privacy, Family, Turn Off.
 - **Games:** My Games library (sort, pin), game detail pages, per-game and overall
@@ -71,13 +75,17 @@ On the on-screen keyboard you can also simply type; Enter submits.
   (display brightness/contrast/screen size, audio, language, clock, power, system info),
   storage (hard drive breakdown, delete/reinstall games, clear cache), network test,
   preferences, account, family settings, **Restore Defaults**.
-- **Intro:** the console start-up video plays full screen on load and when turning the
-  console back on. It always plays to the end. Browsers may start it muted until you click.
+- **Intro:** the console start-up video (upscaled to 1080p with Real-ESRGAN) plays full
+  screen, always with sound, on load and when turning the console back on. It can't be
+  skipped. Browsers don't allow sound before the first click or key press, so if the
+  browser blocks it the console waits on a "press any button" screen and the intro starts,
+  with sound, on that press.
 - **Overlays:** the Xbox Guide (Media, Games & Apps, Home, Friends & Party, Settings),
   full-width system dialogs, on-screen keyboard, toast notifications (sign-in,
   achievements, friends online, messages), help, boot animation and "turn off console".
-- **Sounds:** synthesized with the Web Audio API (navigation ticks, select, back,
-  channel swoosh, notification and achievement chimes). Toggle with **M**.
+- **Sounds:** moving the selection (keys, pad or mouse hover) and selecting play the
+  recorded console sounds in `public/sfx/`; back, channel swoosh, notification and
+  achievement chimes are synthesized with the Web Audio API. Toggle with **M**.
 - **Persistence:** profile, avatar, theme, settings, pins, achievements, messages and
   storage changes are saved to `localStorage`. *Settings → System → Restore Defaults*
   (or *Preferences → Restore Defaults*) resets everything.
@@ -89,7 +97,7 @@ src/
   App.jsx                 console shell: scaled 1920×1080 stage, global actions, live simulation
   nav/                    input layers, spatial (D-pad) navigation, keyboard + gamepad mapping
   state/                  persisted store (useReducer + localStorage) and transient UI state
-  audio/sound.js          Web Audio sound effects
+  audio/sound.js          Web Audio sound effects (recorded samples + synthesized cues)
   data/                   placeholder games/apps/offers, fictional friends/messages, themes
   components/             tiles, rows, avatar + gamerpic SVGs, placeholder art, dashboard chrome
   pivots/                 the six dashboard channels

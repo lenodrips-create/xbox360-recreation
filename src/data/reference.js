@@ -5,6 +5,7 @@ export const REF = {
   play: `${base}ref/tile-play.webp`,
   spotlight: `${base}ref/tile-spotlight.webp`,
   qr: `${base}ref/qr.webp`,
+  promoBg: `${base}ref/promo-bg.webp`,
   gamerpic: `${base}ref/gamerpic.webp`,
   avatar: `${base}ref/avatar.webp`,
   awards: Array.from({ length: 7 }, (_, i) => `${base}ref/award-${i + 1}.webp`),

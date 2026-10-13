@@ -1,5 +1,5 @@
 import { Tile } from '../components/ui.jsx';
-import Glyph from '../components/Glyph.jsx';
+import { TileArt } from '../components/Glyph.jsx';
 import { REF } from '../data/reference.js';
 import { GAME_BY_ID } from '../data/games.js';
 import { useStore } from '../state/store.jsx';
@@ -28,7 +28,7 @@ export default function HomePivot() {
         <span className="tile-label">Play {game.title}</span>
       </Tile>
       <Tile id="home-pins" at={[1, 2, 1, 1]} label="My Pins" onSelect={() => ui.push('pins')}>
-        <Glyph name="pin" size={84} className="tile-glyph" />
+        <TileArt name="pin" />
       </Tile>
       <Tile
         id="home-ad"
@@ -49,7 +49,8 @@ export default function HomePivot() {
         onSelect={() => ui.push('marketplace', { category: 'games' })}
         ariaLabel="Experience next-gen performance. Upgrade Today."
       >
-        <img className="qr" src={REF.qr} alt="" width={236} height={236} draggable={false} />
+        <img className="tile-img" src={REF.promoBg} alt="" draggable={false} />
+        <img className="qr" src={REF.qr} alt="" width={225} height={225} draggable={false} />
         <span className="promo-text">
           Experience next-gen performance.
           <br />
@@ -57,19 +58,19 @@ export default function HomePivot() {
         </span>
       </Tile>
       <Tile id="home-recent" at={[1, 3, 1, 1]} label="Recent" onSelect={() => ui.push('recent')}>
-        <Glyph name="recent" size={80} className="tile-glyph" />
+        <TileArt name="recent" />
       </Tile>
       <Tile id="home-games" at={[2, 3, 1, 1]} label="My Games" onSelect={() => ui.push('games')}>
-        <Glyph name="games" size={84} className="tile-glyph" />
+        <TileArt name="games" />
       </Tile>
       <Tile id="home-apps" at={[3, 3, 1, 1]} label="My Apps" onSelect={() => ui.push('apps')}>
-        <Glyph name="apps" size={84} className="tile-glyph" />
+        <TileArt name="apps" />
       </Tile>
       <Tile id="home-profile" at={[4, 3, 1, 1]} label="Profile" onSelect={() => ui.push('profile')}>
-        <Glyph name="profile" size={80} className="tile-glyph" />
+        <TileArt name="profile" />
       </Tile>
       <Tile id="home-account" at={[5, 3, 1, 1]} label="Account" onSelect={() => ui.push('settings.account')}>
-        <Glyph name="account" size={80} className="tile-glyph" />
+        <TileArt name="account" />
       </Tile>
     </div>
   );

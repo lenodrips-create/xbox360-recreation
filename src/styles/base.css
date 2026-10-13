@@ -206,14 +206,14 @@ p {
 .profile-corner {
   position: absolute;
   z-index: 30;
-  right: 82px;
-  top: 32px;
+  right: 86px;
+  top: 44px;
   height: 56px;
   display: flex;
   align-items: center;
-  gap: 38px;
+  gap: 33px;
   color: #f3f3f3;
-  font-size: 30px;
+  font-size: 26px;
   font-weight: 400;
   transition: opacity 0.25s;
 }
@@ -225,14 +225,9 @@ p {
 .pc-item {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
   line-height: 1;
   white-space: nowrap;
-}
-
-.pc-item .glyph {
-  width: 36px;
-  height: 36px;
 }
 
 .pc-item .g-badge {
@@ -241,9 +236,9 @@ p {
 
 .pc-pic {
   display: inline-flex;
-  width: 52px;
-  height: 52px;
-  margin-left: -6px;
+  width: 46px;
+  height: 46px;
+  margin-left: -14px;
   border-radius: 4px;
   overflow: hidden;
   box-shadow:

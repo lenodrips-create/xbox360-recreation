@@ -5,57 +5,93 @@ import { useStore } from '../state/store.jsx';
 import { sound } from '../audio/sound.js';
 import { REF } from '../data/reference.js';
 
-// The intro video plays full screen, then fades into the dashboard. Browsers
-// block sound until the page has been interacted with, so the first load may
-// start muted (click to turn the sound on); turning the console on from the
-// "off" screen always plays with sound.
+// The intro video plays full screen with sound, then fades into the
+// dashboard. It is never played muted: when the browser refuses to start
+// audio before the page has been interacted with, the console waits on a
+// "press any button" standby screen and the intro starts, with sound, on
+// that first press. Turning the console on from the "off" screen always
+// plays it straight away.
 function Boot() {
   const ui = useUI();
   const { setPower } = ui;
   const videoRef = useRef(null);
   const [ending, setEnding] = useState(false);
-  const [muted, setMuted] = useState(false);
+  const [waiting, setWaiting] = useState(false);
   const done = useRef(false);
+  const safety = useRef(0);
 
   const finish = () => {
     if (done.current) return;
     done.current = true;
+    clearTimeout(safety.current);
     setEnding(true);
     setTimeout(() => setPower('on'), 450);
   };
 
-  // The intro can't be skipped: every input is swallowed until it ends.
-  const { ref } = useLayer({ priority: 400, blockGlobal: true, onBack: () => {}, onAction: () => true, onRawKey: (e) => !/^F\d+$/.test(e.key) });
-
-  useEffect(() => {
+  const play = (fromGesture) => {
     const v = videoRef.current;
-    if (!v) return undefined;
+    if (!v || done.current) return;
+    sound.unlock();
     v.muted = false;
-    v.play().catch(() => {
-      v.muted = true;
-      setMuted(true);
-      v.play().catch(() => finish());
-    });
-    // Safety net only for a video that fails to load or stalls.
-    const t = setTimeout(finish, 20000);
-    return () => clearTimeout(t);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const onClick = () => {
-    const v = videoRef.current;
-    if (muted && v) {
-      v.muted = false;
-      setMuted(false);
-    }
+    v.volume = 1;
+    if (fromGesture) v.currentTime = 0;
+    v.play().then(
+      () => {
+        setWaiting(false);
+        // Safety net only for a video that stalls part way through.
+        clearTimeout(safety.current);
+        safety.current = setTimeout(finish, 20000);
+      },
+      (err) => {
+        if (err && err.name === 'NotAllowedError') setWaiting(true);
+        else if (err && err.name !== 'AbortError') finish();
+      },
+    );
   };
 
+  // The intro can't be skipped: every input is swallowed until it ends. While
+  // waiting for the first press, any key starts it.
+  const waitingRef = useRef(false);
+  waitingRef.current = waiting;
+  const { ref } = useLayer({
+    priority: 400,
+    blockGlobal: true,
+    onBack: () => {},
+    onAction: () => {
+      if (waitingRef.current) play(true);
+      return true;
+    },
+    onRawKey: (e) => {
+      if (/^F\d+$/.test(e.key)) return false;
+      if (waitingRef.current && !e.repeat) play(true);
+      return true;
+    },
+  });
+
+  useEffect(() => {
+    play(false);
+    return () => clearTimeout(safety.current);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
-    <div ref={ref} className={`boot ${ending ? 'is-ending' : ''}`} onClick={onClick} role="presentation">
+    <div
+      ref={ref}
+      className={`boot ${ending ? 'is-ending' : ''} ${waiting ? 'is-waiting' : ''}`}
+      onClick={() => waiting && play(true)}
+      role="presentation"
+    >
       <video ref={videoRef} className="boot-video" playsInline preload="auto" onEnded={finish}>
         <source src={REF.introWebm} type="video/webm" />
         <source src={REF.intro} type="video/mp4" onError={() => setTimeout(finish, 300)} />
       </video>
-      {muted && <div className="boot-unmute">Click for sound</div>}
+      {waiting && (
+        <div className="boot-standby">
+          <div className="power-ring">
+            <span />
+          </div>
+          <p>Press any button to start</p>
+        </div>
+      )}
     </div>
   );
 }

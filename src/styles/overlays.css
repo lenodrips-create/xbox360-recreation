@@ -647,17 +647,25 @@
   display: block;
 }
 
-.boot-unmute {
+.boot.is-waiting .boot-video {
+  visibility: hidden;
+}
+
+.boot-standby {
   position: absolute;
-  left: 50%;
-  bottom: 48px;
-  transform: translateX(-50%);
-  padding: 10px 22px;
-  border-radius: 24px;
-  background: rgba(0, 0, 0, 0.45);
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 22px;
-  animation: fadeIn 0.6s 1s var(--ease-std) both;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  background: #000;
+  animation: fadeIn 0.8s var(--ease-std) both;
+}
+
+.boot-standby p {
+  font-size: 26px;
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .power-off {

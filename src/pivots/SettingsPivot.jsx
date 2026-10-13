@@ -1,5 +1,5 @@
 import { Tile } from '../components/ui.jsx';
-import Glyph from '../components/Glyph.jsx';
+import { TileArt } from '../components/Glyph.jsx';
 import { sound } from '../audio/sound.js';
 import { useUI } from '../state/ui.jsx';
 
@@ -22,13 +22,13 @@ export default function SettingsPivot() {
   return (
     <div className="grid-settings">
       <Tile id="set-system" label="System" isDefault onSelect={() => ui.push('settings.system')}>
-        <Glyph name="system" size={92} className="tile-glyph" />
+        <TileArt name="system" />
       </Tile>
       <Tile id="set-profile" label="Profile" onSelect={() => ui.push('settings.profile')}>
-        <Glyph name="profile" size={92} className="tile-glyph" />
+        <TileArt name="s-profile" />
       </Tile>
       <Tile id="set-preferences" label="Preferences" onSelect={() => ui.push('settings.prefs')}>
-        <Glyph name="preferences" size={92} className="tile-glyph" />
+        <TileArt name="preferences" />
       </Tile>
       <Tile
         id="set-kinect"
@@ -45,19 +45,19 @@ export default function SettingsPivot() {
           })
         }
       >
-        <Glyph name="kinect" size={92} className="tile-glyph" />
+        <TileArt name="kinect" />
       </Tile>
       <Tile id="set-account" label="Account" onSelect={() => ui.push('settings.account')}>
-        <Glyph name="account" size={92} className="tile-glyph" />
+        <TileArt name="s-account" />
       </Tile>
       <Tile id="set-privacy" label="Privacy" onSelect={() => ui.push('settings.privacy')}>
-        <Glyph name="privacy" size={92} className="tile-glyph" />
+        <TileArt name="privacy" />
       </Tile>
       <Tile id="set-family" label="Family" onSelect={() => ui.push('settings.family')}>
-        <Glyph name="family" size={92} className="tile-glyph" />
+        <TileArt name="family" />
       </Tile>
       <Tile id="set-turnoff" label="Turn Off" onSelect={turnOff}>
-        <Glyph name="power" size={92} className="tile-glyph" />
+        <TileArt name="power" />
       </Tile>
     </div>
   );

@@ -107,15 +107,6 @@ function Console() {
     };
   });
 
-  // Sign-in toast after boot, plus a one-time controls hint.
-  const prevPower = useRef(ui.power);
-  useEffect(() => {
-    if (prevPower.current !== 'on' && ui.power === 'on' && state.signedIn) {
-      ui.notify({ kind: 'signin', title: `${state.profile.gamertag} signed in`, text: 'Welcome to Xbox LIVE', force: true });
-    }
-    prevPower.current = ui.power;
-  }, [ui.power]); // eslint-disable-line react-hooks/exhaustive-deps
-
   useLiveSimulation();
 
   // Clicking empty space must not steal focus from the selected tile.
