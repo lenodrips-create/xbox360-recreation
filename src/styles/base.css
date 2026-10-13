@@ -1,0 +1,1011 @@
+/* ==========================================================================
+   Base: fonts, 1920x1080 stage, theme tokens, shared primitives
+   ========================================================================== */
+
+:root {
+  --green: #52a623;
+  --green-hi: #67bb32;
+  --green-lo: #3e8a17;
+  --green-glow: rgba(110, 200, 60, 0.55);
+  --ease-out: cubic-bezier(0.1, 0.9, 0.2, 1);
+  --ease-std: cubic-bezier(0.4, 0, 0.2, 1);
+  --font: 'Segoe UI', 'Open Sans', 'Selawik', 'Helvetica Neue', Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+body {
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  color: #fff;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  text-align: left;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+button:focus,
+button:focus-visible {
+  outline: none;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+/* ---- Stage: everything is laid out at 1920x1080 and scaled to fit ------ */
+.viewport {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  overflow: hidden;
+}
+
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1920px;
+  height: 1080px;
+  transform: translate(-50%, -50%) scale(var(--scale, 1));
+  transform-origin: 50% 50%;
+  overflow: hidden;
+  isolation: isolate;
+  background: #000;
+}
+
+.safe {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  transition: transform 0.3s var(--ease-std);
+}
+
+/* ---- Theme tokens --------------------------------------------------------- */
+.theme-light {
+  --fg: #1d1d1d;
+  --fg-mid: rgba(29, 29, 29, 0.72);
+  --fg-dim: rgba(29, 29, 29, 0.42);
+  --row-bg: rgba(255, 255, 255, 0.6);
+  --row-bg-2: rgba(255, 255, 255, 0.35);
+  --panel-bg: rgba(255, 255, 255, 0.42);
+  --hair: rgba(0, 0, 0, 0.12);
+  --tile-dark: #3a3a3a;
+  --tile-light: rgba(255, 255, 255, 0.78);
+  --tile-light-fg: #1d1d1d;
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.theme-dark {
+  --fg: #ffffff;
+  --fg-mid: rgba(255, 255, 255, 0.75);
+  --fg-dim: rgba(255, 255, 255, 0.45);
+  --row-bg: rgba(255, 255, 255, 0.1);
+  --row-bg-2: rgba(255, 255, 255, 0.06);
+  --panel-bg: rgba(0, 0, 0, 0.28);
+  --hair: rgba(255, 255, 255, 0.14);
+  --tile-dark: rgba(255, 255, 255, 0.13);
+  --tile-light: rgba(255, 255, 255, 0.86);
+  --tile-light-fg: #1d1d1d;
+  --shadow-soft: none;
+}
+
+/* ---- Background ------------------------------------------------------------ */
+.bg-root {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.bg-layer {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+}
+
+.bg-layer.is-new {
+  animation: bgIn 0.8s var(--ease-std) both;
+}
+
+@keyframes bgIn {
+  from {
+    opacity: 0;
+  }
+}
+
+/* The ribbons drift as one composited layer (animating the <svg> box rather
+   than an inner SVG group keeps it off the main thread). */
+.bg-ribbons {
+  position: absolute;
+  left: -80px;
+  top: 0;
+  width: calc(100% + 160px);
+  height: 100%;
+  will-change: transform;
+  animation: ribbonDrift 38s ease-in-out infinite alternate;
+}
+
+.bg-layer.is-drift .bg-ribbons {
+  animation-duration: 22s;
+}
+
+@keyframes ribbonDrift {
+  from {
+    transform: translate3d(-60px, 0, 0);
+  }
+  to {
+    transform: translate3d(60px, -18px, 0);
+  }
+}
+
+/* Pause idle animations that are off screen (hidden channels, covered dashboard). */
+.page.is-off *,
+.dash.is-covered *,
+.screen-host.is-covered * {
+  animation-play-state: paused !important;
+}
+
+/* ---- Profile corner ------------------------------------------------------- */
+.profile-corner {
+  position: absolute;
+  z-index: 30;
+  right: 144px;
+  top: 78px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  color: var(--fg);
+  transition: opacity 0.25s;
+}
+
+.pc-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.15;
+}
+
+.pc-tag {
+  font-size: 30px;
+  font-weight: 400;
+  letter-spacing: -0.2px;
+}
+
+.pc-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 24px;
+  color: var(--fg-mid);
+}
+
+.pc-empty {
+  width: 80px;
+  height: 80px;
+  background: var(--row-bg);
+}
+
+.profile-corner:hover .gamerpic {
+  box-shadow:
+    0 0 0 4px #fff,
+    0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.safe:has(.screen-launch) .profile-corner {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---- Gamerpic / art primitives -------------------------------------------- */
+.gamerpic {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  overflow: hidden;
+  background: #333;
+  transition: box-shadow 0.15s;
+}
+
+.gamerpic > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.gamerpic-avatar {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.g-icon {
+  flex: none;
+  vertical-align: -3px;
+}
+
+.ph-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.boxart {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: #111;
+  overflow: hidden;
+}
+
+.boxart-band {
+  flex: none;
+  height: 11%;
+  min-height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6%;
+  background: linear-gradient(180deg, #6cc33a 0%, #4c9e1f 55%, #3c8714 100%);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.25);
+  container-type: size;
+}
+
+.boxart-orb {
+  width: 58cqh;
+  height: 58cqh;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 34%, #fff 0%, #dfe4e0 45%, #8e968f 100%);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.boxart-brand {
+  font-size: 56cqh;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.boxart-art {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  container-type: size;
+}
+
+.boxart-title {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  bottom: 6%;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  text-transform: uppercase;
+  line-height: 0.95;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.boxart-title span {
+  font-size: 9cqh;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.boxart-title strong {
+  font-size: 26cqh;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+
+.boxart-arcade {
+  position: absolute;
+  right: 0;
+  top: 6%;
+  padding: 1.5% 5%;
+  background: #f39c12;
+  color: #fff;
+  font-size: 6cqh;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.app-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+/* ---- Tiles ------------------------------------------------------------------ */
+.tile {
+  position: relative;
+  display: block;
+  color: #fff;
+  min-width: 0;
+  min-height: 0;
+}
+
+.tile-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background-color: var(--green);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 55%);
+  transition: filter 0.15s;
+}
+
+/* Focus frame: a crisp white border hugging the tile, like the console. */
+.tile::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border: 5px solid #fff;
+  opacity: 0;
+  transform: scale(0.985);
+  transition:
+    opacity 0.12s ease,
+    transform 0.2s var(--ease-out);
+  pointer-events: none;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.2),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.12),
+    0 10px 28px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+}
+
+.tile:focus {
+  z-index: 3;
+}
+
+.tile:focus::after {
+  opacity: 1;
+  transform: none;
+}
+
+.tile:focus .tile-face {
+  filter: brightness(1.06);
+}
+
+.tile.is-pressed,
+.row.is-pressed,
+.scene-av.is-pressed,
+.osk-key.is-pressed,
+.theme-card.is-pressed,
+.pic-card.is-pressed,
+.signin-card.is-pressed {
+  animation: press 0.18s var(--ease-std);
+}
+
+@keyframes press {
+  45% {
+    transform: scale(0.965);
+  }
+}
+
+.tile-icon {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+}
+
+.tile-label {
+  position: absolute;
+  left: 18px;
+  right: 16px;
+  bottom: 13px;
+  font-size: 25px;
+  line-height: 1.1;
+  font-weight: 400;
+  letter-spacing: -0.1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 1;
+}
+
+.tile-sub {
+  position: absolute;
+  right: 16px;
+  top: 14px;
+  font-size: 19px;
+  opacity: 0.85;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  z-index: 1;
+}
+
+.tile-badge {
+  position: absolute;
+  z-index: 4;
+  right: -10px;
+  top: -10px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 20px;
+  background: #fff;
+  color: var(--green-lo);
+  font-size: 22px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.tile-dark .tile-face {
+  background-color: var(--tile-dark);
+}
+
+.tile-light .tile-face {
+  background-color: var(--tile-light);
+  color: var(--tile-light-fg);
+}
+
+.tile-light .tile-icon {
+  color: var(--green-lo);
+}
+
+.tile-gold .tile-face {
+  background: linear-gradient(160deg, #e3b23c 0%, #b9831a 60%, #9a6a10 100%);
+}
+
+.tile-art .tile-face,
+.tile-cover .tile-face {
+  background: #222;
+}
+
+.tile-app .tile-face {
+  background: var(--app, var(--green));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tile-app .app-icon {
+  background: transparent !important;
+  margin-top: -18px;
+}
+
+.art-label {
+  position: absolute;
+  left: 18px;
+  right: 16px;
+  bottom: 13px;
+  z-index: 1;
+  font-size: 22px;
+  line-height: 1.15;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.art-label-lg {
+  font-size: 30px;
+  font-weight: 300;
+}
+
+.art-kicker {
+  position: absolute;
+  left: 18px;
+  top: 14px;
+  z-index: 1;
+  font-size: 18px;
+  text-transform: lowercase;
+  opacity: 0.85;
+}
+
+.tile-progress {
+  position: absolute !important;
+  left: 18px;
+  right: 18px;
+  bottom: 52px;
+}
+
+/* ---- Menu rows ----------------------------------------------------------- */
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  min-height: 72px;
+  padding: 10px 24px;
+  background: var(--row-bg);
+  color: var(--fg);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.15;
+  transition:
+    background-color 0.12s,
+    color 0.12s;
+}
+
+.row:focus {
+  background: var(--green);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.row.is-disabled {
+  opacity: 0.55;
+}
+
+.row-icon {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  color: var(--green);
+}
+
+.theme-dark .row-icon {
+  color: var(--green-hi);
+}
+
+.row:focus .row-icon {
+  color: #fff;
+}
+
+.row-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row-value {
+  flex: none;
+  max-width: 46%;
+  margin-left: auto;
+  font-size: 23px;
+  color: var(--fg-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row:focus .row-value {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.row-pic {
+  flex: none;
+}
+
+.row-pic-left {
+  order: -1;
+}
+
+.row-box {
+  order: -1;
+  flex: none;
+  width: 44px !important;
+  height: 56px !important;
+}
+
+/* Toggle switch (right side of a row) */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-left: auto;
+  font-size: 23px;
+  color: var(--fg-dim);
+}
+
+.row:focus .switch {
+  color: #fff;
+}
+
+.switch-track {
+  position: relative;
+  width: 64px;
+  height: 30px;
+  border: 2px solid currentColor;
+  transition: background 0.18s;
+}
+
+.switch-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: currentColor;
+  transition: transform 0.2s var(--ease-out);
+}
+
+.switch.is-on .switch-track {
+  background: rgba(82, 166, 35, 0.25);
+}
+
+.switch.is-on .switch-knob {
+  transform: translateX(34px);
+}
+
+.switch.is-on {
+  color: var(--green);
+}
+
+.row:focus .switch.is-on {
+  color: #fff;
+}
+
+.row:focus .switch.is-on .switch-track {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Option cycler */
+.option {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  font-size: 23px;
+  color: var(--fg-mid);
+}
+
+.row:focus .option {
+  color: #fff;
+}
+
+.option-arrow {
+  font-size: 30px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.row:focus .option-arrow {
+  opacity: 0.9;
+}
+
+.option-value {
+  min-width: 120px;
+  text-align: center;
+}
+
+.swatch {
+  width: 26px;
+  height: 26px;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+/* Slider */
+.slider {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+  font-size: 23px;
+  color: var(--fg-mid);
+}
+
+.row:focus .slider {
+  color: #fff;
+}
+
+.slider-track {
+  position: relative;
+  width: 220px;
+  height: 10px;
+  background: var(--hair);
+}
+
+.row:focus .slider-track {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.slider-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--green);
+  transition: width 0.15s var(--ease-out);
+}
+
+.row:focus .slider-fill {
+  background: #fff;
+}
+
+.slider-value {
+  min-width: 56px;
+  text-align: right;
+}
+
+/* ---- Controller button glyphs + hints ------------------------------------- */
+.hints {
+  position: absolute;
+  left: 144px;
+  bottom: 70px;
+  display: flex;
+  gap: 34px;
+  z-index: 5;
+}
+
+.hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 23px;
+  color: var(--fg-mid);
+  transition: color 0.15s;
+}
+
+.hint:hover {
+  color: var(--fg);
+}
+
+.btn-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 6px;
+  border-radius: 17px;
+  font-size: 19px;
+  font-weight: 600;
+  color: #fff;
+  background: radial-gradient(circle at 35% 30%, #6e6e6e, #262626 70%);
+  box-shadow:
+    inset 0 -2px 0 rgba(0, 0, 0, 0.35),
+    0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.btn-a {
+  color: #8fe05a;
+}
+
+.btn-b {
+  color: #ff6b5e;
+}
+
+.btn-x {
+  color: #6aaeff;
+}
+
+.btn-y {
+  color: #ffd54a;
+}
+
+.btn-lb,
+.btn-rb,
+.btn-guide {
+  border-radius: 8px;
+  font-size: 15px;
+  min-width: 46px;
+  color: #eee;
+}
+
+/* ---- Misc primitives -------------------------------------------------------- */
+.progress {
+  position: relative;
+  display: block;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.22);
+  overflow: hidden;
+}
+
+.theme-light .screen .progress {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.progress-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--green-hi);
+  transition: width 0.3s var(--ease-out);
+}
+
+.tile .progress {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.tile .progress-fill {
+  background: #fff;
+}
+
+.stars {
+  letter-spacing: 3px;
+  color: var(--fg-dim);
+}
+
+.stars .on {
+  color: #f0b429;
+}
+
+.presence-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+  background: #888;
+  vertical-align: 1px;
+}
+
+.presence-dot.p-online {
+  background: #6fd13a;
+  box-shadow: 0 0 6px rgba(111, 209, 58, 0.8);
+}
+
+.presence-dot.p-away {
+  background: #f0b429;
+}
+
+.presence-dot.p-busy {
+  background: #e05545;
+}
+
+/* ---- Avatar idle animation ---------------------------------------------------- */
+.avatar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.avatar .av-body,
+.avatar .av-head {
+  transform-box: view-box;
+}
+
+.avatar .av-head {
+  animation: avHead 6.5s ease-in-out infinite;
+  animation-delay: calc(var(--av-delay, 0s) * -1.7);
+}
+
+.avatar .av-body {
+  animation: avBreath 4.2s ease-in-out infinite;
+  animation-delay: calc(var(--av-delay, 0s) * -1.3);
+}
+
+.avatar .av-eyes {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: avBlink 5.2s infinite;
+  animation-delay: calc(var(--av-delay, 0s) * -0.9);
+}
+
+.avatar .av-arm {
+  transform-box: view-box;
+}
+
+.avatar.pose-wave .av-arm-r,
+.scene-av:focus .avatar .av-arm-r {
+  animation: avWave 1.4s ease-in-out 2;
+}
+
+@keyframes avHead {
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  30% {
+    transform: rotate(-2.5deg) translateY(1px);
+  }
+  65% {
+    transform: rotate(2deg) translateY(0);
+  }
+}
+
+@keyframes avBreath {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.012);
+  }
+}
+
+@keyframes avBlink {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.08);
+  }
+}
+
+@keyframes avWave {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-150deg);
+  }
+  35% {
+    transform: rotate(-125deg);
+  }
+  50% {
+    transform: rotate(-150deg);
+  }
+  65% {
+    transform: rotate(-125deg);
+  }
+  80% {
+    transform: rotate(-150deg);
+  }
+}
+
+/* ---- Portrait phones: suggest landscape ---------------------------------- */
+.rotate-hint {
+  display: none;
+}
+
+@media (orientation: portrait) and (max-width: 900px) {
+  .rotate-hint {
+    display: block;
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    top: 16px;
+    z-index: 5;
+    text-align: center;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    pointer-events: none;
+  }
+}
+
+/* ---- Reduced motion ---------------------------------------------------------- */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-ribbons,
+  .avatar .av-head,
+  .avatar .av-body {
+    animation: none;
+  }
+}
