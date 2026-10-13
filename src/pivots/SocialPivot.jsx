@@ -2,27 +2,19 @@ import { useMemo } from 'react';
 import { Tile } from '../components/ui.jsx';
 import Glyph, { GBadge } from '../components/Glyph.jsx';
 import Avatar from '../components/Avatar.jsx';
-import Icon from '../components/Icon.jsx';
+import { REF } from '../data/reference.js';
+import { DEFAULT_AVATAR } from '../data/avatar.js';
 import { sound } from '../audio/sound.js';
 import { gamerscoreOf, useStore } from '../state/store.jsx';
 import { useUI } from '../state/ui.jsx';
-
-// Avatar awards shown next to the gamertag (placeholder items).
-const AWARDS = [
-  { icon: 'star', color: '#6b5a3a' },
-  { icon: 'bolt', color: '#4a4a4a' },
-  { icon: 'joystick', color: '#5b4630' },
-  { icon: 'trophy', color: '#7a5226' },
-  { icon: 'disc', color: '#5a4a32' },
-  { icon: 'music', color: '#6a4a2a' },
-  { icon: 'gold', color: '#3f4f2f', badge: true },
-];
 
 export default function SocialPivot() {
   const ui = useUI();
   const { state } = useStore();
   const score = useMemo(() => gamerscoreOf(state.unlocked), [state.unlocked]);
   const { profile } = state;
+  // Until the avatar is customised, show the avatar from the reference capture.
+  const stockAvatar = JSON.stringify(profile.avatar) === JSON.stringify(DEFAULT_AVATAR);
 
   return (
     <div className="social">
@@ -58,18 +50,19 @@ export default function SocialPivot() {
           {score.toLocaleString('en-US')} <GBadge size={46} />
         </span>
         <span className="awards">
-          {Array.from({ length: 9 }, (_, i) => {
-            const a = AWARDS[i];
-            return (
-              <span key={i} className={`award ${a ? '' : 'is-empty'} ${a?.badge ? 'is-badge' : ''}`}>
-                {a && <Icon name={a.icon} size={36} strokeWidth={3} style={{ color: a.color }} />}
-              </span>
-            );
-          })}
+          {Array.from({ length: 9 }, (_, i) => (
+            <span key={i} className={`award ${REF.awards[i] ? '' : 'is-empty'}`}>
+              {REF.awards[i] && <img src={REF.awards[i]} alt="" draggable={false} />}
+            </span>
+          ))}
         </span>
-        <span className="social-avatar">
-          <Avatar config={profile.avatar} delay={0.6} />
-        </span>
+        {stockAvatar ? (
+          <img className="social-avatar-img" src={REF.avatar} alt="" draggable={false} />
+        ) : (
+          <span className="social-avatar">
+            <Avatar config={profile.avatar} delay={0.6} />
+          </span>
+        )}
       </button>
 
       <p className="social-copy">Xbox is more fun with friends.</p>

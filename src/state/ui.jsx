@@ -26,7 +26,9 @@ export function UIProvider({ children }) {
   const [pivot, setPivot] = useState(0);
   const [party, setParty] = useState(null);
   const [trayOpen, setTrayOpen] = useState(false);
-  const [presence, setPresence] = useState(() => Object.fromEntries(FRIENDS.map((f) => [f.id, { presence: f.presence, activity: f.activity }])));
+  const [presence, setPresence] = useState(() =>
+    Object.fromEntries(FRIENDS.map((f) => [f.id, { presence: 'offline', activity: 'Last seen recently' }])),
+  );
 
   const stackRef = useRef(stack);
   stackRef.current = stack;

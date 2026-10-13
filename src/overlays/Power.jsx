@@ -1,32 +1,62 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLayer } from '../nav/NavProvider.jsx';
 import { useUI } from '../state/ui.jsx';
 import { useStore } from '../state/store.jsx';
 import { sound } from '../audio/sound.js';
+import { REF } from '../data/reference.js';
 
-const BOOT_MS = 2700;
-
-// Original boot sequence: a glowing orb and light ribbons, then fade in.
+// The intro video plays full screen, then fades into the dashboard. Browsers
+// block sound until the page has been interacted with, so the first load may
+// start muted (click to turn the sound on); turning the console on from the
+// "off" screen always plays with sound.
 function Boot() {
   const ui = useUI();
   const { setPower } = ui;
-  const finish = () => setPower('on');
+  const videoRef = useRef(null);
+  const [ending, setEnding] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const done = useRef(false);
+
+  const finish = () => {
+    if (done.current) return;
+    done.current = true;
+    setEnding(true);
+    setTimeout(() => setPower('on'), 450);
+  };
+
   const { ref } = useLayer({ priority: 400, blockGlobal: true, onBack: finish, onAction: () => (finish(), true) });
+
   useEffect(() => {
-    sound.play('boot');
-    const t = setTimeout(() => setPower('on'), BOOT_MS);
+    const v = videoRef.current;
+    if (!v) return undefined;
+    v.muted = false;
+    v.play().catch(() => {
+      v.muted = true;
+      setMuted(true);
+      v.play().catch(() => finish());
+    });
+    // Safety net if the video can't load or stalls.
+    const t = setTimeout(finish, 14000);
     return () => clearTimeout(t);
-  }, [setPower]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const onClick = () => {
+    const v = videoRef.current;
+    if (muted && v) {
+      v.muted = false;
+      setMuted(false);
+      return;
+    }
+    finish();
+  };
+
   return (
-    <div ref={ref} className="boot" onClick={finish} role="presentation">
-      <div className="boot-glow" />
-      <div className="boot-ribbon r1" />
-      <div className="boot-ribbon r2" />
-      <div className="boot-ribbon r3" />
-      <div className="boot-orb">
-        <span />
-      </div>
-      <div className="boot-flash" />
+    <div ref={ref} className={`boot ${ending ? 'is-ending' : ''}`} onClick={onClick} role="presentation">
+      <video ref={videoRef} className="boot-video" playsInline preload="auto" onEnded={finish}>
+        <source src={REF.introWebm} type="video/webm" />
+        <source src={REF.intro} type="video/mp4" onError={finish} />
+      </video>
+      {muted && <div className="boot-unmute">Click for sound · press any key to skip</div>}
     </div>
   );
 }

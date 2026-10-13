@@ -217,9 +217,7 @@ export function Party({ active }) {
                 icon="plus"
                 label="Invite Friends"
                 isDefault
-                onSelect={() =>
-                  ui.push('pickFriend', { title: 'Invite to Party', onlineOnly: true, onPick: (id) => inviteToParty(ui, FRIEND_BY_ID[id]) })
-                }
+                onSelect={() => ui.push('pickFriend', { title: 'Invite to Party', onPick: (id) => inviteToParty(ui, FRIEND_BY_ID[id]) })}
               />
               <Row
                 id="party-chat"

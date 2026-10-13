@@ -9,9 +9,11 @@ Games and apps are **placeholders** for now. Every slot is clearly labelled
 ("Game Title 01", "App Title 03", "Game Placeholder 01"…) and can be swapped for real
 content later.
 
-> Not affiliated with or endorsed by Microsoft. Xbox, Xbox 360, Xbox LIVE and Bing are
-> trademarks of Microsoft. No original Microsoft artwork, fonts, sounds or screenshots
-> are included. Everything is drawn with CSS/SVG or synthesized at runtime.
+> Not affiliated with or endorsed by Microsoft. Xbox, Xbox 360 and Xbox LIVE are
+> trademarks of Microsoft. The intro video (`public/intro.*`) and the images in
+> `public/ref/` (Play tile, spotlight, QR code, avatar, avatar awards, gamer picture)
+> come from reference captures supplied by the project owner and belong to their
+> respective rights holders; everything else is drawn with CSS/SVG or synthesized.
 
 ## Run it
 
@@ -69,6 +71,8 @@ On the on-screen keyboard you can also simply type; Enter submits.
   (display brightness/contrast/screen size, audio, language, clock, power, system info),
   storage (hard drive breakdown, delete/reinstall games, clear cache), network test,
   preferences, account, family settings, **Restore Defaults**.
+- **Intro:** the console start-up video plays full screen on load and when turning the
+  console back on (skip with any key). Browsers may start it muted until you click.
 - **Overlays:** the Xbox Guide (Media, Games & Apps, Home, Friends & Party, Settings),
   full-width system dialogs, on-screen keyboard, toast notifications (sign-in,
   achievements, friends online, messages), help, boot animation and "turn off console".

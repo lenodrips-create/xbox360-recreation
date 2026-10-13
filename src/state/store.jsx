@@ -7,16 +7,16 @@ const STORAGE_KEY = 'x360-metro-dashboard:v1';
 
 export function createDefaultState() {
   return {
-    version: 1,
+    version: 2,
     signedIn: true,
     profile: {
-      gamertag: 'Arcade Nomad',
+      gamertag: 'LavendFilms',
       name: 'Alex Rivera',
       motto: 'Respawn. Repeat.',
       bio: 'Couch co-op veteran. Collector of 5G achievements. Always up for a party chat.',
       location: 'Pacific Northwest',
       zone: 'Recreation',
-      gamerpic: 'orb',
+      gamerpic: 'reference',
       avatar: { ...DEFAULT_AVATAR },
       rep: 5,
       tier: 'gold',
@@ -52,7 +52,7 @@ export function createDefaultState() {
     pins: ['game:g01', 'app:a01', 'game:g05'],
     recent: ['game:g01', 'game:g04', 'app:a02', 'game:g07', 'game:g02', 'app:a05', 'game:g10', 'game:g03'],
     unlocked: seedUnlocked(),
-    messages: seedMessages(),
+    messages: seedMessages().map((m) => ({ ...m, read: true })),
     removedFriends: [],
     myBeacon: null,
     uninstalled: ['game:g11', 'game:g12'],

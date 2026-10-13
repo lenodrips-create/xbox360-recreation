@@ -332,3 +332,52 @@
 .grid-settings .tile-glyph {
   top: 44%;
 }
+
+/* ---- Reference imagery ------------------------------------------------- */
+.tile-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.awards {
+  left: 4px;
+  top: 144px;
+  grid-template-columns: repeat(3, 62px);
+  grid-template-rows: repeat(3, 62px);
+  gap: 4px;
+}
+
+.award {
+  background: none;
+  box-shadow: none;
+}
+
+.award img {
+  width: 62px;
+  height: 62px;
+  display: block;
+}
+
+.award.is-empty {
+  margin: 1px 3px 3px 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Avatar from the capture, placed where it stands on the console. */
+.social-avatar-img {
+  position: absolute;
+  left: 185px;
+  top: 80px;
+  width: 202px;
+  height: 554px;
+  pointer-events: none;
+}
+
+.social-score .g-badge {
+  width: 44px;
+  height: 44px;
+}

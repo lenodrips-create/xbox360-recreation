@@ -630,159 +630,34 @@
 }
 
 .boot {
-  animation: bootOut 2.7s linear both;
+  background: #000;
+  transition: opacity 0.45s var(--ease-std);
 }
 
-@keyframes bootOut {
-  0%,
-  86% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-.boot-glow {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 1400px;
-  height: 1400px;
-  margin: -700px 0 0 -700px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(120, 220, 70, 0.55) 0%, rgba(60, 150, 30, 0.2) 35%, rgba(0, 0, 0, 0) 65%);
-  animation: glow 2.7s var(--ease-std) both;
-}
-
-@keyframes glow {
-  0% {
-    opacity: 0;
-    transform: scale(0.2);
-  }
-  45% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0.7;
-    transform: scale(1.3);
-  }
-}
-
-.boot-orb {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 220px;
-  height: 220px;
-  margin: -110px 0 0 -110px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(circle at 40% 35%, #8fe05a, #2f7d12 70%);
-  box-shadow:
-    0 0 0 8px rgba(255, 255, 255, 0.15),
-    0 0 120px rgba(127, 210, 74, 0.8);
-  animation: orbIn 2.7s var(--ease-out) both;
-}
-
-.boot-orb span {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 38% 34%, #fff 0%, #dfe4e0 45%, #8e968f 100%);
-}
-
-@keyframes orbIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.3) rotate(-40deg);
-  }
-  35% {
-    opacity: 1;
-    transform: scale(1.05) rotate(0deg);
-  }
-  50% {
-    transform: scale(1);
-  }
-  80% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(3);
-  }
-}
-
-.boot-ribbon {
-  position: absolute;
-  left: -20%;
-  width: 140%;
-  height: 46px;
-  border-radius: 50%;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(200, 255, 170, 0.75), rgba(255, 255, 255, 0));
-  filter: blur(2px);
+.boot.is-ending {
   opacity: 0;
 }
 
-.boot-ribbon.r1 {
-  top: 46%;
-  transform: rotate(-12deg);
-  animation: ribbon 2.7s var(--ease-out) 0.3s both;
-}
-
-.boot-ribbon.r2 {
-  top: 54%;
-  transform: rotate(9deg);
-  animation: ribbon 2.7s var(--ease-out) 0.45s both;
-}
-
-.boot-ribbon.r3 {
-  top: 50%;
-  height: 20px;
-  transform: rotate(-3deg);
-  animation: ribbon 2.7s var(--ease-out) 0.6s both;
-}
-
-@keyframes ribbon {
-  0% {
-    opacity: 0;
-    translate: -40% 0;
-  }
-  30% {
-    opacity: 1;
-  }
-  70% {
-    opacity: 0.8;
-  }
-  100% {
-    opacity: 0;
-    translate: 40% 0;
-  }
-}
-
-.boot-flash {
+.boot-video {
   position: absolute;
   inset: 0;
-  background: #fff;
-  opacity: 0;
-  animation: flash 2.7s linear both;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
-@keyframes flash {
-  0%,
-  74% {
-    opacity: 0;
-  }
-  82% {
-    opacity: 0.85;
-  }
-  100% {
-    opacity: 0;
-  }
+.boot-unmute {
+  position: absolute;
+  left: 50%;
+  bottom: 48px;
+  transform: translateX(-50%);
+  padding: 10px 22px;
+  border-radius: 24px;
+  background: rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 22px;
+  animation: fadeIn 0.6s 1s var(--ease-std) both;
 }
 
 .power-off {

@@ -77,7 +77,7 @@ export const GAMES = Array.from({ length: 12 }, (_, i) => {
   return {
     id: `g${n}`,
     kind: 'game',
-    title: `Game Title ${n}`,
+    title: i === 0 ? 'Minecraft' : `Game Title ${n}`,
     short: `Game ${n}`,
     genre: GENRES[i % GENRES.length],
     publisher: 'Publisher Name',
@@ -100,19 +100,22 @@ export const GAMES = Array.from({ length: 12 }, (_, i) => {
 
 export const GAME_BY_ID = Object.fromEntries(GAMES.map((g) => [g.id, g]));
 
-// Deterministic "already unlocked" achievements for a lived-in profile.
+// Starting achievements: a few from the first game totalling 80G, matching
+// the reference profile.
 export function seedUnlocked() {
-  const out = {};
-  const base = Date.UTC(2013, 9, 20);
-  GAMES.forEach((g, gi) => {
-    const rand = mulberry(31 * (gi + 11));
-    const ratio = [0.75, 0.5, 0.35, 0.6, 0.2, 0.9, 0.45, 0.3, 0.15, 0.55, 0.0, 0.25][gi];
-    const map = {};
-    g.achievements.forEach((a, ai) => {
-      if (ai === 0 && ratio > 0) map[a.id] = base - (gi * 9 + 40) * 86400000;
-      else if (rand() < ratio) map[a.id] = base - Math.floor(rand() * 600 + gi * 7) * 86400000;
-    });
-    out[g.id] = map;
+  const out = Object.fromEntries(GAMES.map((g) => [g.id, {}]));
+  const base = Date.UTC(2015, 3, 12);
+  // Smallest subset of achievements (across the library) worth exactly 80G.
+  const pool = GAMES.flatMap((g) => g.achievements.map((a) => ({ ...a, game: g.id })));
+  const best = new Map([[0, []]]);
+  for (const a of pool) {
+    for (const [sum, picks] of [...best.entries()]) {
+      const next = sum + a.g;
+      if (next <= 80 && (!best.has(next) || best.get(next).length > picks.length + 1)) best.set(next, [...picks, a]);
+    }
+  }
+  (best.get(80) || []).forEach((a, i) => {
+    out[a.game][a.id] = base - i * 86400000;
   });
   return out;
 }
