@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "A fan-made, fully interactive recreation of the 2011-2013 Xbox 360 Metro dashboard, written in JavaScript with React.",
   "contributors": [
-    "lenodrips-create (https://github.com/lenodrips-create) - project owner, direction and reference captures",
+    "Lennon Hellman (https://github.com/lenodrips-create) - project owner, direction and reference captures",
     "Gunner Castle - repository cleanup and tooling",
     "Claude (Anthropic) - implementation"
   ],

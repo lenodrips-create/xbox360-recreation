@@ -177,6 +177,7 @@ function GuidePanel() {
         },
       },
       { id: 'g-help', label: 'Help & Controls', icon: 'help', run: go(() => ui.setHelpOpen(true)) },
+      { id: 'g-about', label: 'About', icon: 'info', run: go(() => ui.push('settings.about')) },
       { id: 'g-off', label: 'Turn Off Console', icon: 'power', run: turnOff },
     ],
   };

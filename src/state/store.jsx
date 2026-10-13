@@ -8,6 +8,8 @@ const STORAGE_KEY = 'x360-metro-dashboard:v1';
 function createDefaultState() {
   return {
     version: 2,
+    // False until the first-launch prompt has collected a gamertag.
+    onboarded: false,
     signedIn: true,
     profile: {
       gamertag: 'LavendFilms',
@@ -99,6 +101,8 @@ function reducer(state, action) {
   switch (action.type) {
     case 'profile':
       return { ...state, profile: { ...state.profile, ...action.patch } };
+    case 'onboard':
+      return { ...state, onboarded: true, profile: { ...state.profile, ...action.patch } };
     case 'avatar':
       return { ...state, profile: { ...state.profile, avatar: { ...state.profile.avatar, ...action.patch } } };
     case 'settings':
@@ -166,6 +170,7 @@ export function StoreProvider({ children }) {
   const actions = useMemo(
     () => ({
       updateProfile: (patch) => dispatch({ type: 'profile', patch }),
+      completeOnboarding: (patch) => dispatch({ type: 'onboard', patch }),
       updateAvatar: (patch) => dispatch({ type: 'avatar', patch }),
       updateSettings: (patch) => dispatch({ type: 'settings', patch }),
       updateFamily: (patch) => dispatch({ type: 'family', patch }),
@@ -228,4 +233,9 @@ export function gameProgress(unlocked, gameId) {
     }
   }
   return { earned, count, total: g.total, of: g.achievements.length };
+}
+
+// Gamertags are 3–15 characters, as on the console.
+export function isValidGamertag(tag) {
+  return tag.length >= 3 && tag.length <= 15;
 }

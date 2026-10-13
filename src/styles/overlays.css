@@ -190,6 +190,18 @@
   gap: 6px;
 }
 
+/* First-launch prompt: sits under the Guide, dialogs and the keyboard. */
+.welcome-overlay {
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.dialog p.welcome-note {
+  margin-top: 18px;
+  font-size: 22px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
 /* ---- On-screen keyboard ---------------------------------------------------- */
 .osk-overlay {
   position: absolute;

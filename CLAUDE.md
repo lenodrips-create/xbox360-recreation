@@ -24,13 +24,17 @@ keyboard (arrows, Enter, Esc, Q/E for channels, G for the Guide) as well as the 
   `data-scroll="x|y"` (keeps focus in view), `data-adjust` (left/right adjusts the row).
 - **Input layers.** `useLayer({ priority, enabled, onBack, onAction, onEdge })` registers
   a modal scope, and only the top enabled layer gets input. Priorities: dashboard 0,
-  screens 10, Guide 140, keyboard 150, dialog 160, help 300, boot/power 400.
+  screens 10, first-launch Welcome 120, Guide 140, keyboard 150, dialog 160, help 300,
+  boot/power 400.
 - **Screens.** Build the component on `<Screen>` from `components/ui.jsx` (it registers
   the priority-10 layer and B = back), add it to `screens/registry.js`, then open it with
   `ui.push('id', params)`. Menu-style screens can use `MenuScreen` from `screens/common.jsx`.
 - **State.** `state/store.jsx` is persisted to localStorage; `state/ui.jsx` is transient
   (screen stack, overlays, toasts, presence). If you change the shape of persisted state,
   bump `version` in `createDefaultState()`: saves with another version are discarded.
+- **First launch.** `overlays/Welcome.jsx` asks for a gamertag (required) and a name
+  (optional) while `state.onboarded` is false, and Restore Defaults brings it back. Everything
+  stays in localStorage: there are no accounts, passwords or admin controls, so keep it that way.
 - **Content keys.** Games and apps are referred to as `game:g01` / `app:a03`. Use
   `parseKey` / `openContent` from `state/content.js`.
 - **Sound.** `sound.play(name)` from `audio/sound.js`. `hover` and `select` are recorded

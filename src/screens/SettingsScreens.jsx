@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { GAMES } from '../data/games.js';
 import { APPS } from '../data/catalog.js';
 import { THEMES, THEME_BY_ID } from '../data/themes.js';
-import { gamerscoreOf, useStore } from '../state/store.jsx';
+import { gamerscoreOf, isValidGamertag, useStore } from '../state/store.jsx';
 import { useUI } from '../state/ui.jsx';
 import { sound } from '../audio/sound.js';
 import Gamerpic from '../components/Gamerpic.jsx';
@@ -27,7 +27,7 @@ export function ProfileSettings({ active }) {
     const v = await ui.keyboard({ title: 'Change Gamertag', value: p.gamertag, maxLength: 15 });
     if (v === null) return;
     const tag = v.trim();
-    if (tag.length < 3) {
+    if (!isValidGamertag(tag)) {
       sound.play('error');
       ui.notify({ kind: 'info', title: 'Gamertag too short', text: 'Use 3 to 15 characters', icon: 'info', force: true });
       return;
@@ -222,6 +222,13 @@ export function SystemSettings({ active }) {
       icon: 'network',
       desc: 'Test your Xbox LIVE connection (simulated).',
       onSelect: () => ui.push('settings.network'),
+    },
+    {
+      id: 'sys-about',
+      label: 'About',
+      icon: 'info',
+      desc: 'Who made this recreation, and where your data is kept.',
+      onSelect: () => ui.push('settings.about'),
     },
     {
       id: 'sys-initial',
@@ -542,6 +549,32 @@ export function SystemInfo({ active }) {
         </dl>
         <div className="menu">
           <Row id="si-ok" label="OK" icon="check" isDefault onSelect={() => ui.pop()} snd={null} />
+        </div>
+      </div>
+    </Screen>
+  );
+}
+
+// ---- About --------------------------------------------------------------------
+export function About({ active }) {
+  const ui = useUI();
+  return (
+    <Screen active={active} kicker="settings" title="About">
+      <div className="split">
+        <div className="about">
+          <p className="about-lead">A fan-made recreation of the Xbox 360 dashboard, built for the web.</p>
+          <h2 className="about-head">Created by</h2>
+          <ul className="about-credits">
+            <li>Lennon Hellman</li>
+            <li>Gunner Castle</li>
+          </ul>
+          <p className="about-note">
+            Your profile and progress are saved in this browser only. Not affiliated with or endorsed by Microsoft. Xbox, Xbox 360 and Xbox LIVE are
+            trademarks of Microsoft.
+          </p>
+        </div>
+        <div className="menu">
+          <Row id="about-ok" label="OK" icon="check" isDefault onSelect={() => ui.pop()} snd={null} />
         </div>
       </div>
     </Screen>

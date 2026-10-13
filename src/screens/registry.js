@@ -16,6 +16,7 @@ import {
   SignInOut,
 } from './SocialScreens.jsx';
 import {
+  About,
   AccountSettings,
   AudioSettings,
   ConsoleSettings,
@@ -76,4 +77,5 @@ export const SCREENS = {
   'settings.account': AccountSettings,
   'settings.family': FamilySettings,
   'settings.theme': ThemeSettings,
+  'settings.about': About,
 };

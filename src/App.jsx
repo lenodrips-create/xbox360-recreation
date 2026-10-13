@@ -16,6 +16,7 @@ import KeyboardHost from './overlays/Keyboard.jsx';
 import ToastHost from './overlays/Toasts.jsx';
 import HelpOverlay from './overlays/Help.jsx';
 import PowerOverlay from './overlays/Power.jsx';
+import WelcomeHost from './overlays/Welcome.jsx';
 
 const W = 1920;
 const H = 1080;
@@ -144,6 +145,7 @@ function Console() {
           <ScreenStack />
           <ProfileCorner />
         </div>
+        <WelcomeHost />
         <Guide />
         <DialogHost />
         <KeyboardHost />
