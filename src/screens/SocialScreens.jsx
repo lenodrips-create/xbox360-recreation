@@ -781,7 +781,7 @@ export function SignInOut({ active }) {
   };
   const signIn = () => {
     actions.setSignedIn(true);
-    ui.notify({ kind: 'signin', title: `${p.gamertag} signed in`, text: 'Welcome to Xbox LIVE', force: true });
+    ui.notify({ kind: 'signin', title: `${p.gamertag} signed`, text: 'in to Xbox LIVE', force: true });
     ui.pop();
   };
   return (

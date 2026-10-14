@@ -18,7 +18,6 @@ import ToastHost from './overlays/Toasts.jsx';
 import HelpOverlay from './overlays/Help.jsx';
 import PowerOverlay from './overlays/Power.jsx';
 import WelcomeHost from './overlays/Welcome.jsx';
-import SigninToast from './overlays/SigninToast.jsx';
 
 const W = 1920;
 const H = 1080;
@@ -116,13 +115,13 @@ function Console() {
 
   // When the start-up cutscene ends the profile signs in with the green-orb
   // notification. On first launch that waits until a gamertag has been chosen.
-  const [signinToast, setSigninToast] = useState(0);
   const prevPower = useRef(ui.power);
   const prevOnboarded = useRef(state.onboarded);
   useEffect(() => {
     const booted = prevPower.current === 'booting' && ui.power === 'on';
     const onboardedNow = !prevOnboarded.current && state.onboarded;
-    if (ui.power === 'on' && state.signedIn && state.onboarded && (booted || onboardedNow)) setSigninToast(Date.now());
+    if (ui.power === 'on' && state.signedIn && state.onboarded && (booted || onboardedNow))
+      ui.notify({ kind: 'signin', title: `${state.profile.gamertag} signed`, text: 'in to Xbox LIVE', force: true });
     prevPower.current = ui.power;
     prevOnboarded.current = state.onboarded;
   }, [ui.power, state.onboarded]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -168,7 +167,6 @@ function Console() {
         <KeyboardHost />
         <HelpOverlay />
         <ToastHost />
-        {signinToast > 0 && <SigninToast key={signinToast} gamertag={state.profile.gamertag} onDone={() => setSigninToast(0)} />}
         <PowerOverlay />
         {library.dragging && (
           <div className="drop-hint">

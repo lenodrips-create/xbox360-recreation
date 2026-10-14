@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-import { sound } from '../audio/sound.js';
 import { REF } from '../data/reference.js';
 
 // The console's green-orb notification, recreated from a capture: the orb
@@ -22,16 +20,4 @@ export function XboxNotice({ line1, line2, pic, delay = 0.05 }) {
       </div>
     </div>
   );
-}
-
-// Shown when the start-up cutscene ends, with the current gamertag. The chime
-// leads the orb by a quarter of a second, as on the console.
-export default function SigninToast({ gamertag, onDone }) {
-  useEffect(() => {
-    sound.play('signin');
-    const t = setTimeout(onDone, 3400);
-    return () => clearTimeout(t);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  return <XboxNotice line1={`${gamertag} signed`} line2="in to Xbox LIVE" delay={0.25} />;
 }

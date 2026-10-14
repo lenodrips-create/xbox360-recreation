@@ -39,13 +39,36 @@ export async function listGames() {
   });
 }
 
+// Files are stored as plain bytes ({ type, data }) rather than Blobs: some
+// Safari versions can't put a Blob into IndexedDB. Older saves hold Blobs.
+export const asBlob = (rec) => (rec instanceof Blob ? rec : rec && rec.data ? new Blob([rec.data], { type: rec.type || '' }) : null);
+
 export async function saveGame(meta, files) {
+  const records = [];
+  for (const [path, blob] of files) records.push([path, { type: blob.type, data: await blob.arrayBuffer() }]);
   const db = await open();
   const tx = db.transaction(['games', 'files'], 'readwrite');
   const store = tx.objectStore('files');
-  for (const [path, blob] of files) store.put(blob, `${meta.id}/${path}`);
+  for (const [path, rec] of records) store.put(rec, `${meta.id}/${path}`);
   tx.objectStore('games').put(meta);
   return finished(tx);
+}
+
+// Every file of a game as Map<path, Blob>.
+export async function readGameFiles(id) {
+  const db = await open();
+  return new Promise((resolve, reject) => {
+    const out = new Map();
+    const range = IDBKeyRange.bound(`${id}/`, `${id}/\uffff`);
+    const req = db.transaction('files').objectStore('files').openCursor(range);
+    req.onsuccess = () => {
+      const cur = req.result;
+      if (!cur) return resolve(out);
+      out.set(String(cur.key).slice(id.length + 1), asBlob(cur.value));
+      cur.continue();
+    };
+    req.onerror = () => reject(req.error);
+  });
 }
 
 export async function updateGame(meta) {

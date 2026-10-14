@@ -46,7 +46,10 @@ keyboard (arrows, Enter, Esc, Q/E for channels, G for the Guide) as well as the 
   layer swallows every button except Guide/Back; hold Esc or press Home inside the game
   opens the Guide, and Xbox Home asks before quitting. Keep the database name, version
   and stores identical in `src/games/db.js` and `public/sw.js`. Games need a secure
-  context (https or localhost).
+  context (https or localhost). When the service worker is missing or doesn't answer the frame
+  (no `__x360Served` marker), `src/games/inline.js` builds the game from blob: URLs instead,
+  rewriting references and mapping runtime fetch/XHR/src paths. Files are stored as
+  `{ type, data }` bytes (older saves: Blobs) because some Safari versions can't store Blobs.
 - **Content keys.** Loaded games are `game:<id>` and apps `app:a03`. Use `parseKey` /
   `openContent` from `state/content.js` with the library's `byId`; keys for deleted games
   resolve to nothing, and `actions.forget` removes them from Pins and Recent.

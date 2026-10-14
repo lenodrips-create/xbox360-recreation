@@ -17,7 +17,8 @@ export default function ToastHost() {
   useEffect(() => {
     if (!toast) return undefined;
     sound.play(toast.kind === 'signin' ? 'signin' : 'notify');
-    const t = setTimeout(() => dismissToast(toast.key), LIFE_MS);
+    // Sign-ins start a quarter second later, after their chime.
+    const t = setTimeout(() => dismissToast(toast.key), toast.kind === 'signin' ? LIFE_MS + 200 : LIFE_MS);
     return () => clearTimeout(t);
   }, [toast, dismissToast]);
 

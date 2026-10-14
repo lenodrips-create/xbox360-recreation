@@ -58,7 +58,9 @@ async function serve(rest, request) {
     path = meta.entry;
   } else if (path.endsWith('/')) path += 'index.html';
 
-  const blob = await read(db, 'files', `${id}/${path}`);
+  // Stored as { type, data } bytes (older saves: a Blob); see src/games/db.js.
+  const rec = await read(db, 'files', `${id}/${path}`);
+  const blob = rec instanceof Blob ? rec : rec && rec.data ? new Blob([rec.data], { type: rec.type || '' }) : null;
   if (!blob) return notFound();
   const headers = { 'Content-Type': blob.type || 'application/octet-stream', 'Cache-Control': 'no-store' };
 
@@ -151,7 +153,8 @@ function bootstrap(prefix) {
 }
 
 function inject(html, id) {
-  const tag = `<script>(${bootstrap})(${JSON.stringify(`x360:game:${id}:`)})</script>`;
+  // __x360Served tells the dashboard this frame really came from here.
+  const tag = `<script>window.__x360Served=1;(${bootstrap})(${JSON.stringify(`x360:game:${id}:`)})</script>`;
   const m = /<head(\s[^>]*)?>/i.exec(html) || /<html(\s[^>]*)?>/i.exec(html) || /<!doctype[^>]*>/i.exec(html);
   if (!m) return tag + html;
   const at = m.index + m[0].length;

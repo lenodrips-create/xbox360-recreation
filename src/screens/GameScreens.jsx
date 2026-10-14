@@ -3,6 +3,7 @@ import { APP_BY_ID } from '../data/catalog.js';
 import { useStore } from '../state/store.jsx';
 import { useUI } from '../state/ui.jsx';
 import { openContent, parseKey } from '../state/content.js';
+import { buildInlineGame } from '../games/inline.js';
 import { useLibrary } from '../games/LibraryProvider.jsx';
 import { sound } from '../audio/sound.js';
 import { useLayer } from '../nav/NavProvider.jsx';
@@ -176,9 +177,6 @@ export function AddGame({ active }) {
               ? 'Adding…'
               : 'Games are saved in this browser only. You can also drag files or folders onto the dashboard. While playing, hold Esc or press Home to open the Guide.'}
           </p>
-          {library.player === 'unsupported' && (
-            <p className="info-warn">Games can only run when the dashboard is opened from an https address or localhost.</p>
-          )}
         </InfoPanel>
       )}
     />
@@ -301,6 +299,33 @@ export function PlayGame({ active, params }) {
   const game = library.byId[params.id];
   const frameRef = useRef(null);
   const [loaded, setLoaded] = useState(false);
+  // 'sw': served by public/sw.js; 'inline': built in the page (see games/inline.js)
+  // when the service worker is missing or didn't answer the frame.
+  const [mode, setMode] = useState(null);
+  const [inlineSrc, setInlineSrc] = useState(null);
+  const [failed, setFailed] = useState(null);
+  useEffect(() => {
+    if (!mode && library.player === 'ready') setMode('sw');
+    else if (!mode && library.player === 'unsupported') setMode('inline');
+  }, [library.player, mode]);
+  useEffect(() => {
+    if (mode !== 'inline' || !game) return undefined;
+    let cleanup = null;
+    let cancelled = false;
+    buildInlineGame(game).then(
+      (r) => {
+        if (cancelled) return r.cleanup();
+        cleanup = r.cleanup;
+        if (r.src) setInlineSrc(r.src);
+        else setFailed("This game's start page is missing.");
+      },
+      (err) => !cancelled && setFailed(`Couldn't open the game (${(err && err.message) || err}).`),
+    );
+    return () => {
+      cancelled = true;
+      if (cleanup) cleanup();
+    };
+  }, [mode, game]);
   const live = useRef({ ui, active });
   live.current = { ui, active };
 
@@ -332,6 +357,19 @@ export function PlayGame({ active, params }) {
   const onLoad = () => {
     const frame = frameRef.current;
     if (!frame) return;
+    if (mode === 'sw') {
+      // Without the service worker the host's own 404 page loads instead.
+      let served = true;
+      try {
+        served = !!frame.contentWindow.__x360Served;
+      } catch {
+        /* cross-origin: the game navigated elsewhere */
+      }
+      if (!served) {
+        setMode('inline');
+        return;
+      }
+    }
     if (!loaded) {
       setLoaded(true);
       ui.notify({ kind: 'info', title: 'Hold Esc for the Guide', text: 'Or press Home', icon: 'controller', force: true });
@@ -362,12 +400,13 @@ export function PlayGame({ active, params }) {
 
   let body;
   if (!game) body = <Empty icon="info" title="This game isn't on this device anymore" text="Open the Guide to go back." />;
-  else if (library.player === 'unsupported')
-    body = <Empty icon="info" title="Games can't run here" text="Open the dashboard from an https address or localhost to play loaded games." />;
-  else if (library.player === 'ready') {
-    const src = new URL(`play/${game.id}/${game.entry.split('/').map(encodeURIComponent).join('/')}`, document.baseURI).href;
+  else if (failed) body = <Empty icon="info" title="This game couldn't start" text={failed} />;
+  else if (mode === 'sw' || (mode === 'inline' && inlineSrc)) {
+    const src =
+      mode === 'inline' ? inlineSrc : new URL(`play/${game.id}/${game.entry.split('/').map(encodeURIComponent).join('/')}`, document.baseURI).href;
     body = (
       <iframe
+        key={mode}
         ref={frameRef}
         className={`play-frame ${loaded ? 'is-loaded' : ''}`}
         src={src}
@@ -382,7 +421,7 @@ export function PlayGame({ active, params }) {
   return (
     <section ref={ref} className="screen screen-play">
       {body}
-      {game && !loaded && library.player !== 'unsupported' && (
+      {game && !loaded && !failed && (
         <div className="launch-loading">
           <span className="launch-ring" />
           <span className="launch-text">Loading {game.title}…</span>

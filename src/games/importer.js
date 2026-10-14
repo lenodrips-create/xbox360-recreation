@@ -88,9 +88,24 @@ function unzipFile(file) {
   );
 }
 
+// What a file is, by name or (when phones rename files) by its first bytes.
+async function kindOf(file) {
+  if (/\.zip$/i.test(file.name)) return 'zip';
+  if (PAGE.test(file.name)) return 'html';
+  const head = new Uint8Array(await file.slice(0, 512).arrayBuffer());
+  if (head[0] === 0x50 && head[1] === 0x4b) return 'zip';
+  const text = new TextDecoder().decode(head).trimStart().toLowerCase();
+  if (text.startsWith('<!doctype html') || text.startsWith('<html') || /<(head|body|script|canvas)[\s>]/.test(text)) return 'html';
+  return null;
+}
+
 async function fromFile(file) {
-  if (/\.zip$/i.test(file.name)) return buildGame(file.name, await unzipFile(file), 'zip');
-  if (PAGE.test(file.name)) return buildGame(file.name, [{ path: file.name, blob: file }], 'html');
+  const kind = await kindOf(file);
+  if (kind === 'zip') return buildGame(file.name, await unzipFile(file), 'zip');
+  if (kind === 'html') {
+    const name = PAGE.test(file.name) ? file.name : `${file.name || 'game'}.html`;
+    return buildGame(name, [{ path: name, blob: file }], 'html');
+  }
   throw new ImportError(`${file.name} isn't an HTML file or a .zip`);
 }
 

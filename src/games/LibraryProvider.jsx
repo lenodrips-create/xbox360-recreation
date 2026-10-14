@@ -14,7 +14,10 @@ const gameStoragePrefix = (id) => `x360:game:${id}:`;
 
 function registerPlayer() {
   if (!('serviceWorker' in navigator) || !window.isSecureContext) return Promise.reject(new Error('unsupported'));
-  return navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).then(() => navigator.serviceWorker.ready);
+  // Some browsers never settle registration (blocked or private modes); give up
+  // after a few seconds and let games run through the in-page fallback.
+  const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
+  return Promise.race([navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).then(() => navigator.serviceWorker.ready), timeout]);
 }
 
 export function LibraryProvider({ children }) {
@@ -52,8 +55,9 @@ export function LibraryProvider({ children }) {
         try {
           await saveGame(g.meta, g.files);
           saved.push(g.meta);
-        } catch {
-          errors.push(`Not enough space to save ${g.meta.title}`);
+        } catch (err) {
+          const full = err && err.name === 'QuotaExceededError';
+          errors.push(full ? `Not enough space to save ${g.meta.title}` : `Couldn't save ${g.meta.title} (${(err && err.message) || err})`);
         }
       }
       const u = live.current.ui;
@@ -182,7 +186,8 @@ export function LibraryProvider({ children }) {
   return (
     <LibraryContext.Provider value={value}>
       {children}
-      <input ref={fileInput} type="file" accept=".html,.htm,.zip" multiple hidden onChange={onPicked(gamesFromFiles)} />
+      {/* No accept filter: iPhone greys out .html and .zip files with one; the importer checks what was picked. */}
+      <input ref={fileInput} type="file" multiple hidden onChange={onPicked(gamesFromFiles)} />
       <input ref={folderInput} type="file" webkitdirectory="" hidden onChange={onPicked(gamesFromFolder)} />
     </LibraryContext.Provider>
   );
