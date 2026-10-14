@@ -87,7 +87,7 @@ export default function HomePivot() {
         variant="promo"
         className="tile-promo"
         isDefault
-        onSelect={() => ui.push('marketplace', { category: 'games' })}
+        snd={null}
         ariaLabel="Experience next-gen performance. Upgrade Today."
       >
         <img className="qr" src={REF.qr} alt="" width={225} height={225} draggable={false} />

@@ -52,7 +52,7 @@
   font-weight: 300;
   letter-spacing: 0;
   line-height: 1;
-  color: rgba(255, 255, 255, 0.47);
+  color: rgba(255, 255, 255, 0.4);
   transition:
     color 0.35s var(--ease-std),
     font-size 0.35s var(--ease-std),
@@ -81,20 +81,23 @@
 .strip {
   position: absolute;
   left: 0;
-  top: 265px;
+  top: 264px;
   height: 620px;
   width: 0;
-  transition: transform 0.55s cubic-bezier(0.16, 0.84, 0.24, 1);
-}
-
-.strip.no-anim {
-  transition: none;
 }
 
 .page {
   position: absolute;
   top: 0;
-  transition: opacity 0.45s var(--ease-std);
+  left: 0;
+  transition:
+    transform 0.55s cubic-bezier(0.16, 0.84, 0.24, 1),
+    opacity 0.45s var(--ease-std),
+    filter 0.45s var(--ease-std);
+}
+
+.strip.no-anim .page {
+  transition: none;
 }
 
 /* Neighbouring channels peek in at the edges, dimmed. */
@@ -117,7 +120,7 @@
 
 .peek-right {
   right: 0;
-  width: 92px;
+  width: 97px;
 }
 
 .dash-hints {
@@ -152,9 +155,44 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
+  /* glyph white measured from the captures */
+  color: #ececec;
 }
 
-.tile.is-unavailable .tile-icon-art,
+/* Sub-pixel placement against the captures. */
+.page-home .tile-icon-art {
+  transform: translate(-1px, 2px);
+}
+
+.page-home .tile-icon-art[data-icon='profile'] {
+  transform: translate(-3px, 2px);
+}
+
+.page-home .tile-icon-art[data-icon='account'] {
+  transform: translate(-2px, 2.5px);
+}
+
+.page-social .tile-icon-art {
+  transform: translate(1px, 0);
+}
+
+.page-settings .tile-icon-art {
+  transform: translate(2px, 1.5px);
+}
+
+.page-home .tile-icon-art[data-icon='pin'] {
+  transform-origin: 133px 83.5px;
+  transform: translate(0, 0) scale(0.925);
+}
+
+.dash .tile-label {
+  color: #ececec;
+}
+
+.tile.is-unavailable .tile-icon-art {
+  opacity: 0.28;
+}
+
 .tile.is-unavailable .tile-glyph,
 .tile.is-unavailable .tile-label {
   opacity: 0.42;
@@ -245,7 +283,7 @@
   display: grid;
   grid-template-columns: 266px;
   grid-template-rows: repeat(4, 149px);
-  gap: 5px;
+  gap: 4px;
   --focus-scale: 1.06;
 }
 
@@ -253,7 +291,7 @@
    selected; the avatar is selectable without any outline or zoom. */
 .soc-btn {
   position: absolute;
-  color: #fff;
+  color: #f0f0f0;
   transition: transform 0.16s cubic-bezier(0.2, 0.8, 0.3, 1);
 }
 
@@ -262,8 +300,8 @@
 }
 
 .soc-tag {
-  left: 284px;
-  top: -16px;
+  left: 280px;
+  top: -9px;
   width: 420px;
   height: 128px;
   transform-origin: 8px 50%;
@@ -378,15 +416,15 @@
 }
 
 .soc-copy {
-  left: 818px;
-  top: 184px;
+  left: 816px;
+  top: 190px;
   width: 452px;
   padding: 6px;
   text-align: left;
-  font-size: 39px;
+  font-size: 39.5px;
   font-weight: 300;
   line-height: 58px;
-  color: rgba(255, 255, 255, 0.86);
+  color: rgba(255, 255, 255, 0.6);
   transform-origin: 6px 50%;
 }
 
@@ -400,8 +438,12 @@
   display: grid;
   grid-template-columns: repeat(4, 300px);
   grid-template-rows: repeat(2, 300px);
-  gap: 8px;
+  gap: 7px;
   --focus-scale: 1.085;
+}
+
+.social-col .tile-label {
+  font-size: 26px;
 }
 
 .grid-settings .tile-label {

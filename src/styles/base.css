@@ -230,6 +230,12 @@ p {
   white-space: nowrap;
 }
 
+.pc-balance {
+  position: relative;
+  top: 5px;
+  letter-spacing: 1px;
+}
+
 .pc-item .g-badge {
   color: #f3f3f3;
 }
