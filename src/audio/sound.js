@@ -1,6 +1,6 @@
 // Dashboard sound effects played through the Web Audio API.
-// Moving the selection and selecting use the recorded console sounds in
-// public/sfx/ (hover.wav, select.wav); the remaining cues are synthesized.
+// Moving the selection, selecting and the start-up sign-in use the recorded
+// console sounds in public/sfx/; the remaining cues are synthesized.
 
 let ctx = null;
 let master = null;
@@ -13,6 +13,7 @@ let lastPlayed = {};
 const SAMPLE_URLS = {
   hover: `${import.meta.env.BASE_URL}sfx/hover.wav`,
   select: `${import.meta.env.BASE_URL}sfx/select.wav`,
+  signin: `${import.meta.env.BASE_URL}sfx/signin.wav`,
 };
 const sampleData = {};
 const samples = {};
@@ -166,6 +167,10 @@ const SOUNDS = {
   },
   error() {
     tone(196, { dur: 0.16, gain: 0.08, type: 'square' });
+  },
+  signin() {
+    if (sample('signin')) return;
+    SOUNDS.toast();
   },
   toast() {
     tone(659, { dur: 0.35, gain: 0.08, type: 'sine' });

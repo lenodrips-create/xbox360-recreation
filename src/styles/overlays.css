@@ -737,3 +737,125 @@
   pointer-events: none;
   animation: fadeIn 0.15s var(--ease-std) both;
 }
+
+/* ---- Start-up sign-in notification (measured from the console capture) ---- */
+.signin-toast {
+  position: absolute;
+  z-index: 95;
+  left: 50%;
+  bottom: 102px;
+  height: 95px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.st-pill {
+  height: 95px;
+  margin-left: 47px;
+  padding: 6px 38px 0 62px;
+  border-radius: 47.5px;
+  background: linear-gradient(180deg, #252525 0, #3d3c3b 3%, #403f3e 50%, #3a3938 86%, #262626 100%);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.32);
+  clip-path: inset(-2px calc(100% - 48px) -2px -2px round 47.5px);
+  animation: stPill 3s linear 0.25s both;
+}
+
+.st-text {
+  display: block;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 41px;
+  color: #f4f4f4;
+  white-space: nowrap;
+  opacity: 0;
+  animation: stText 3s linear 0.25s both;
+}
+
+.st-orb {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 95px;
+  height: 95px;
+  opacity: 0;
+  animation: stOrb 3s linear 0.25s both;
+}
+
+.st-orb img {
+  position: absolute;
+  left: -1.5px;
+  top: -1.5px;
+  width: 97.5px;
+  height: 97.5px;
+}
+
+.st-orb-system {
+  opacity: 0;
+  animation: stSystem 3s linear 0.25s both;
+}
+
+@keyframes stOrb {
+  0% {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  4.5% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  91% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes stPill {
+  0%,
+  3.5% {
+    clip-path: inset(-2px calc(100% - 48px) -2px -2px round 47.5px);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  11.5%,
+  85% {
+    clip-path: inset(-2px -2px -2px -2px round 47.5px);
+    animation-timing-function: cubic-bezier(0.6, 0, 0.8, 0.4);
+  }
+  94%,
+  100% {
+    clip-path: inset(-2px calc(100% - 48px) -2px -2px round 47.5px);
+  }
+}
+
+@keyframes stText {
+  0%,
+  10.5% {
+    opacity: 0;
+  }
+  13%,
+  83% {
+    opacity: 1;
+  }
+  87%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes stSystem {
+  0%,
+  22% {
+    opacity: 0;
+  }
+  26.5%,
+  59% {
+    opacity: 1;
+  }
+  64%,
+  100% {
+    opacity: 0;
+  }
+}
