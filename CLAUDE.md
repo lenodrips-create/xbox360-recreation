@@ -43,7 +43,7 @@ keyboard (arrows, Enter, Esc, Q/E for channels, G for the Guide) as well as the 
 - **Playing.** The `play` screen loads `play/<id>/<entry>` in an iframe. `public/sw.js`
   answers those requests from IndexedDB and injects a script that namespaces the game's
   localStorage (`x360:game:<id>:`), so a game can't clear the dashboard's save. The player
-  layer swallows every button except Guide/Back; hold Esc or press Home inside the game
+  layer swallows every button except Guide/Back; Esc or Home inside the game
   opens the Guide, and Xbox Home asks before quitting. Keep the database name, version
   and stores identical in `src/games/db.js` and `public/sw.js`. Games need a secure
   context (https or localhost). When the service worker is missing or doesn't answer the frame

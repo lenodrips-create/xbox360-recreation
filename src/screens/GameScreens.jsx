@@ -175,7 +175,7 @@ export function AddGame({ active }) {
           <p className="info-dim">
             {library.busy
               ? 'Adding…'
-              : 'Games are saved in this browser only. You can also drag files or folders onto the dashboard. While playing, hold Esc or press Home to open the Guide.'}
+              : 'Games are saved in this browser only. You can also drag files or folders onto the dashboard. While playing, press Esc or Home to open the Guide.'}
           </p>
         </InfoPanel>
       )}
@@ -287,11 +287,54 @@ export function GameDetail({ active, params }) {
 }
 
 // ---- Playing a game -------------------------------------------------------
-const GUIDE_HOLD_MS = 700;
+// A cover screenshot: the biggest canvas in the game, drawn right after the
+// game's own frame (WebGL clears its buffer once the frame is shown). Null when
+// there is no canvas or it is blank.
+function captureFrame(frame) {
+  return new Promise((resolve) => {
+    try {
+      const win = frame.contentWindow;
+      const canvas = [...frame.contentDocument.querySelectorAll('canvas')]
+        .filter((c) => c.width >= 64 && c.height >= 64)
+        .sort((a, b) => b.width * b.height - a.width * a.height)[0];
+      if (!canvas) return resolve(null);
+      win.requestAnimationFrame(() => {
+        try {
+          const s = Math.min(1, 480 / Math.max(canvas.width, canvas.height));
+          const out = document.createElement('canvas');
+          out.width = Math.round(canvas.width * s);
+          out.height = Math.round(canvas.height * s);
+          const g = out.getContext('2d');
+          g.fillStyle = '#000';
+          g.fillRect(0, 0, out.width, out.height);
+          g.drawImage(canvas, 0, 0, out.width, out.height);
+          const probe = document.createElement('canvas');
+          probe.width = 16;
+          probe.height = 9;
+          const pg = probe.getContext('2d');
+          pg.drawImage(out, 0, 0, 16, 9);
+          const px = pg.getImageData(0, 0, 16, 9).data;
+          let min = 255;
+          let max = 0;
+          for (let i = 0; i < px.length; i += 4) {
+            const v = px[i] + px[i + 1] + px[i + 2];
+            min = Math.min(min, v);
+            max = Math.max(max, v);
+          }
+          resolve(max - min > 24 ? out.toDataURL('image/jpeg', 0.82) : null);
+        } catch {
+          resolve(null);
+        }
+      });
+    } catch {
+      resolve(null);
+    }
+  });
+}
 
 // The game runs full screen in a frame served by public/sw.js. It gets every
-// key and button except the Guide: hold Esc, press Home, or press the
-// controller's Guide or Back button to open the Guide.
+// key and button except the Guide: press Esc or Home, or the controller's
+// Guide or Back button, to open the Guide.
 export function PlayGame({ active, params }) {
   const ui = useUI();
   const { actions } = useStore();
@@ -354,6 +397,33 @@ export function PlayGame({ active, params }) {
     if (game) actions.touchRecent(`game:${game.id}`);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Esc / Home pressed inside the game (reported by the script injected into it).
+  useEffect(() => {
+    const onMessage = (e) => {
+      const frame = frameRef.current;
+      if (frame && e.source === frame.contentWindow && e.data && e.data.x360 === 'guide') guideRef.current();
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
+
+  // A fresh cover screenshot at a random moment of each session.
+  useEffect(() => {
+    if (!loaded || !game) return undefined;
+    let tries = 0;
+    let timer = setTimeout(
+      function shoot() {
+        if (!frameRef.current) return;
+        captureFrame(frameRef.current).then((shot) => {
+          if (shot) library.setCover(game.id, shot);
+          else if (++tries < 4) timer = setTimeout(shoot, 2500);
+        });
+      },
+      4000 + Math.random() * 8000,
+    );
+    return () => clearTimeout(timer);
+  }, [loaded]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const onLoad = () => {
     const frame = frameRef.current;
     if (!frame) return;
@@ -372,28 +442,7 @@ export function PlayGame({ active, params }) {
     }
     if (!loaded) {
       setLoaded(true);
-      ui.notify({ kind: 'info', title: 'Hold Esc for the Guide', text: 'Or press Home', icon: 'controller', force: true });
-    }
-    try {
-      const win = frame.contentWindow;
-      let hold = 0;
-      win.addEventListener(
-        'keydown',
-        (e) => {
-          if (e.key === 'Home') {
-            e.preventDefault();
-            guideRef.current();
-          } else if (e.key === 'Escape' && !e.repeat) {
-            clearTimeout(hold);
-            hold = setTimeout(() => guideRef.current(), GUIDE_HOLD_MS);
-          }
-        },
-        true,
-      );
-      win.addEventListener('keyup', (e) => e.key === 'Escape' && clearTimeout(hold), true);
-      win.addEventListener('blur', () => clearTimeout(hold));
-    } catch {
-      /* the game navigated away to another site; the Guide button still works */
+      ui.notify({ kind: 'info', title: 'Press Esc for the Guide', text: 'Or press Home', icon: 'controller', force: true });
     }
     if (live.current.active && !live.current.ui.guideOpen) frame.focus();
   };

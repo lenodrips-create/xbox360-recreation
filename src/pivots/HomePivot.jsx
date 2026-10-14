@@ -30,7 +30,11 @@ export default function HomePivot() {
           onSelect={() => ui.push('play', { id: last.id })}
           ariaLabel={`Play ${last.title}`}
         >
-          <PlaceholderArt hue={last.hue} motif={last.motif} className="tile-img" />
+          {last.cover ? (
+            <img className="tile-img" src={last.cover} alt="" draggable={false} />
+          ) : (
+            <PlaceholderArt hue={last.hue} motif={last.motif} className="tile-img" />
+          )}
           <span className="play-disc" aria-hidden="true" />
           <span className="tile-label">Play {last.title}</span>
         </Tile>

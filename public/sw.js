@@ -153,8 +153,9 @@ function bootstrap(prefix) {
 }
 
 function inject(html, id) {
-  // __x360Served tells the dashboard this frame really came from here.
-  const tag = `<script>window.__x360Served=1;(${bootstrap})(${JSON.stringify(`x360:game:${id}:`)})</script>`;
+  // __x360Served tells the dashboard this frame really came from here. Esc and
+  // Home are reported to the dashboard before the game's own handlers run.
+  const tag = `<script>window.__x360Served=1;window.addEventListener('keydown',function(e){if(e.key==='Escape'||e.key==='Home'){try{parent.postMessage({x360:'guide'},'*')}catch(_){}}},true);(${bootstrap})(${JSON.stringify(`x360:game:${id}:`)})</script>`;
   const m = /<head(\s[^>]*)?>/i.exec(html) || /<html(\s[^>]*)?>/i.exec(html) || /<!doctype[^>]*>/i.exec(html);
   if (!m) return tag + html;
   const at = m.index + m[0].length;

@@ -105,6 +105,19 @@ export function LibraryProvider({ children }) {
     if (next) await updateGame(next);
   }, []);
 
+  // A cover picture (data URL): a random image at import, then screenshots.
+  const setCover = useCallback(async (id, cover) => {
+    let next = null;
+    setGames((list) =>
+      list.map((g) => {
+        if (g.id !== id) return g;
+        next = { ...g, cover, coverIsShot: true };
+        return next;
+      }),
+    );
+    if (next) await updateGame(next);
+  }, []);
+
   const remove = useCallback(
     async (id) => {
       await deleteGame(id);
@@ -173,8 +186,9 @@ export function LibraryProvider({ children }) {
       pickFolder,
       rename,
       remove,
+      setCover,
     }),
-    [games, ready, player, busy, dragging, pickFiles, pickFolder, rename, remove],
+    [games, ready, player, busy, dragging, pickFiles, pickFolder, rename, remove, setCover],
   );
 
   const onPicked = (read) => (e) => {

@@ -38,6 +38,37 @@ function readTitle(html) {
     .slice(0, 60);
 }
 
+const IMAGE = /\.(png|jpe?g|webp|gif|bmp)$/i;
+
+// A small JPEG of an image, for game covers. Null if it can't be decoded or is
+// too small to be anything but an icon.
+export async function thumbnail(source, max = 480) {
+  try {
+    const bmp = await createImageBitmap(source);
+    if (bmp.width < 64 || bmp.height < 64) return null;
+    const s = Math.min(1, max / Math.max(bmp.width, bmp.height));
+    const c = document.createElement('canvas');
+    c.width = Math.round(bmp.width * s);
+    c.height = Math.round(bmp.height * s);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', 0.82);
+  } catch {
+    return null;
+  }
+}
+
+// Until the game has been played (and screenshotted), its cover is a random
+// picture from its own files.
+async function pickCover(files) {
+  const images = [...files].filter(([path, blob]) => IMAGE.test(path) && blob.size > 2048);
+  while (images.length) {
+    const [, blob] = images.splice(Math.floor(Math.random() * images.length), 1)[0];
+    const cover = await thumbnail(blob);
+    if (cover) return cover;
+  }
+  return null;
+}
+
 // Drops a folder that wraps everything (zips usually have one) and picks the
 // start page: the shallowest index.html, otherwise the shallowest page.
 async function buildGame(name, entries, source) {
@@ -71,6 +102,7 @@ async function buildGame(name, entries, source) {
       addedAt: Date.now(),
       hue: h % 360,
       motif: MOTIFS[h % MOTIFS.length],
+      cover: await pickCover(files),
     },
     files,
   };

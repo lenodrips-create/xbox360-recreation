@@ -8,7 +8,7 @@ frame, the Guide, the pop-up notifications and the menu sounds.
 There are no built-in games. **Your games are web pages you load from your own device**:
 a single `.html` file, a `.zip`, or a folder with an `index.html`. Add them from
 My Games, the Guide, or by dragging them onto the dashboard. They're saved in your browser
-only (nothing is uploaded) and run full screen; hold Esc or press Home to bring up the
+only (nothing is uploaded) and run full screen; press Esc or Home to bring up the
 Guide. Apps and the Marketplace are still labelled placeholders.
 
 > Not affiliated with or endorsed by Microsoft. Xbox, Xbox 360 and Xbox LIVE are

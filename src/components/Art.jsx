@@ -114,7 +114,11 @@ export const BoxArt = memo(function BoxArt({ game, className = '', showTitle = t
         <span className="boxart-brand">XBOX 360</span>
       </div>
       <div className="boxart-art">
-        <PlaceholderArt hue={game.hue} motif={game.motif} />
+        {game.cover ? (
+          <img className="boxart-shot" src={game.cover} alt="" draggable={false} />
+        ) : (
+          <PlaceholderArt hue={game.hue} motif={game.motif} />
+        )}
         {showTitle && (
           <div className="boxart-title">
             <span>{game.title.replace(/ \d+$/, '')}</span>

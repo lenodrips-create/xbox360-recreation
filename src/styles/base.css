@@ -356,6 +356,15 @@ p {
   container-type: size;
 }
 
+.boxart-shot {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .boxart-title {
   position: absolute;
   left: 7%;

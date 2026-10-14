@@ -184,7 +184,8 @@ export async function buildInlineGame(game) {
       );
       out = await replaceAsync(out, /style\s*=\s*(['"])([^'"]*url\([^'"]*)\1/gi, async (m) => `style=${m[1]}${await css(path, m[2])}${m[1]}`);
       const map = Object.fromEntries(urls);
-      const tag = `<script>(${bootstrap})(${JSON.stringify(`x360:game:${game.id}:`)});(${shim})(${JSON.stringify(map)},${JSON.stringify(game.entry)})</script>`;
+      // Esc and Home go to the dashboard first (as in public/sw.js).
+      const tag = `<script>window.addEventListener('keydown',function(e){if(e.key==='Escape'||e.key==='Home'){try{parent.postMessage({x360:'guide'},'*')}catch(_){}}},true);(${bootstrap})(${JSON.stringify(`x360:game:${game.id}:`)});(${shim})(${JSON.stringify(map)},${JSON.stringify(game.entry)})</script>`;
       const head = /<head(\s[^>]*)?>/i.exec(out) || /<html(\s[^>]*)?>/i.exec(out);
       return head ? out.slice(0, head.index + head[0].length) + tag + out.slice(head.index + head[0].length) : tag + out;
     }
