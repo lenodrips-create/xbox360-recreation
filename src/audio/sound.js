@@ -1,6 +1,6 @@
 // Dashboard sound effects played through the Web Audio API.
-// Moving the selection and selecting use the recorded console sounds in
-// public/sfx/ (hover.wav, select.wav); the remaining cues are synthesized.
+// Moving the selection, selecting, switching channels, notifications and the
+// sign-in use the recorded console sounds in public/sfx/; the rest are synthesized.
 
 let ctx = null;
 let master = null;
@@ -13,6 +13,10 @@ let lastPlayed = {};
 const SAMPLE_URLS = {
   hover: `${import.meta.env.BASE_URL}sfx/hover.wav`,
   select: `${import.meta.env.BASE_URL}sfx/select.wav`,
+  signin: `${import.meta.env.BASE_URL}sfx/signin.wav`,
+  notify: `${import.meta.env.BASE_URL}sfx/notify.wav`,
+  pivotRight: `${import.meta.env.BASE_URL}sfx/pivot-right.wav`,
+  pivotLeft: `${import.meta.env.BASE_URL}sfx/pivot-left.wav`,
 };
 const sampleData = {};
 const samples = {};
@@ -136,6 +140,13 @@ const SOUNDS = {
   back() {
     tone(1046, { dur: 0.12, gain: 0.1, type: 'triangle', to: 620 });
   },
+  // Dashboard channel changes: recorded swooshes for moving right and left.
+  pivotRight() {
+    if (!sample('pivotRight')) SOUNDS.pivot();
+  },
+  pivotLeft() {
+    if (!sample('pivotLeft')) SOUNDS.pivot();
+  },
   pivot() {
     noise({ dur: 0.22, from: 700, to: 3200, gain: 0.09, q: 0.9 });
     tone(520, { dur: 0.1, gain: 0.04, type: 'sine', to: 760 });
@@ -166,6 +177,13 @@ const SOUNDS = {
   },
   error() {
     tone(196, { dur: 0.16, gain: 0.08, type: 'square' });
+  },
+  notify() {
+    if (!sample('notify')) SOUNDS.toast();
+  },
+  signin() {
+    if (sample('signin')) return;
+    SOUNDS.toast();
   },
   toast() {
     tone(659, { dur: 0.35, gain: 0.08, type: 'sine' });

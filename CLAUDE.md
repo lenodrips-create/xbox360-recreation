@@ -50,8 +50,11 @@ keyboard (arrows, Enter, Esc, Q/E for channels, G for the Guide) as well as the 
 - **Content keys.** Loaded games are `game:<id>` and apps `app:a03`. Use `parseKey` /
   `openContent` from `state/content.js` with the library's `byId`; keys for deleted games
   resolve to nothing, and `actions.forget` removes them from Pins and Recent.
-- **Sound.** `sound.play(name)` from `audio/sound.js`. `hover` and `select` are recorded
-  samples; every other cue is synthesized.
+- **Sound.** `sound.play(name)` from `audio/sound.js`. `hover`, `select`, `pivotRight`,
+  `pivotLeft`, `notify` and `signin` are recorded samples; every other cue is synthesized.
+- **Notifications.** `ui.notify({ title, text, kind })` shows the green-orb pill
+  (`XboxNotice` in `overlays/SigninToast.jsx`): `title` and `text` are its two lines, and a
+  `friend` toast shows that friend's gamer picture in the orb.
 
 ## Conventions
 

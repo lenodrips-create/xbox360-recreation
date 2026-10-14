@@ -1,5 +1,23 @@
-// Gamer pictures: original vector glyphs over gradient backgrounds.
+import { REF } from './reference.js';
+
+// Gamer pictures: the one from the reference capture, classic pictures from the
+// supplied sheet (friends use these), then original vector glyphs.
 export const GAMERPICS = [
+  { id: 'reference', name: 'Default', from: '#111', to: '#111', glyph: 'orb', src: REF.gamerpic },
+  ...[
+    ['creeper', 'Creeper'],
+    ['owl', 'Owl'],
+    ['anime-girl', 'Anime Girl'],
+    ['green-bean', 'Green Bean'],
+    ['flaming-skull', 'Flaming Skull'],
+    ['panda', 'Panda'],
+    ['blue-spartan', 'Blue Spartan'],
+    ['skater-kid', 'Skater Kid'],
+    ['metal-head', 'Metal Head'],
+    ['skull', 'Skull'],
+    ['pirate', 'Pirate'],
+    ['monster', 'Monster'],
+  ].map(([id, name]) => ({ id, name, from: '#111', to: '#111', glyph: 'orb', src: REF.pic(id) })),
   { id: 'orb', name: 'Green Orb', from: '#7ed957', to: '#2f7d12', glyph: 'orb' },
   { id: 'bolt', name: 'Bolt', from: '#ffd35c', to: '#e07b00', glyph: 'bolt' },
   { id: 'planet', name: 'Planet', from: '#6a7dff', to: '#25206b', glyph: 'planet' },

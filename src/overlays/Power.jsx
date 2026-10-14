@@ -40,7 +40,7 @@ function Boot() {
         setWaiting(false);
         // Safety net only for a video that stalls part way through.
         clearTimeout(safety.current);
-        safety.current = setTimeout(finish, 20000);
+        safety.current = setTimeout(finish, 30000);
       },
       (err) => {
         if (err && err.name === 'NotAllowedError') setWaiting(true);

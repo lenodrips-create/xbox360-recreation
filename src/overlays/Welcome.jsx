@@ -33,8 +33,8 @@ function Welcome() {
     if (v !== null) setName(v.trim());
   };
   const finish = () => {
+    // App shows the sign-in notification once onboarding completes.
     actions.completeOnboarding({ gamertag: tag, name });
-    ui.notify({ kind: 'signin', title: `${tag} signed in`, text: 'Welcome to Xbox LIVE', force: true });
   };
 
   return (

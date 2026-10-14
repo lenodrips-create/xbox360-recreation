@@ -12,11 +12,12 @@ only (nothing is uploaded) and run full screen; hold Esc or press Home to bring 
 Guide. Apps and the Marketplace are still labelled placeholders.
 
 > Not affiliated with or endorsed by Microsoft. Xbox, Xbox 360 and Xbox LIVE are
-> trademarks of Microsoft. The intro video (`public/intro.*`), the menu sounds
-> (`public/sfx/`), the QR code (`public/ref/qr.webp`) and the tile/status-bar glyphs
-> (`src/data/icons.js`, traced from the captures) come from reference captures supplied
-> by the project owner and belong to their respective rights holders; everything else is
-> drawn with CSS/SVG or synthesized.
+> trademarks of Microsoft. The start-up cutscene (`public/intro.*`: intro and loading
+> screen), the menu and sign-in sounds (`public/sfx/`), the QR code, spotlight image and
+> sign-in orb (`public/ref/`) and the tile/status-bar glyphs (`src/data/icons.js`, traced
+> from the captures) come from reference captures and images supplied by the project
+> owner and belong to their respective rights holders; everything else is drawn with
+> CSS/SVG or synthesized.
 
 ## Project layout
 
