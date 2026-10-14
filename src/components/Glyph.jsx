@@ -6,7 +6,7 @@ function Paths({ icon }) {
   return (
     <>
       <path d={icon.d} fillRule="evenodd" />
-      {icon.s && <path d={icon.s} fill="none" stroke="#fff" strokeWidth="1.1" strokeLinecap="round" />}
+      {icon.s && <path d={icon.s} fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />}
     </>
   );
 }
@@ -22,7 +22,7 @@ export default function Glyph({ name, size = 64, tight = false, className = '', 
   const width = tight ? (size * w) / side : size;
   const height = tight ? (size * h) / side : size;
   return (
-    <svg className={`glyph ${className}`} width={width} height={height} viewBox={vb} fill="#fff" aria-hidden="true" style={style}>
+    <svg className={`glyph ${className}`} width={width} height={height} viewBox={vb} fill="currentColor" aria-hidden="true" style={style}>
       <Paths icon={icon} />
     </svg>
   );
@@ -34,7 +34,14 @@ export function TileArt({ name }) {
   const icon = ICONS[name];
   if (!icon) return null;
   return (
-    <svg className="tile-icon-art" viewBox={`0 0 ${icon.f[0]} ${icon.f[1]}`} preserveAspectRatio="xMidYMid meet" fill="#fff" aria-hidden="true">
+    <svg
+      className="tile-icon-art"
+      data-icon={name}
+      viewBox={`0 0 ${icon.f[0]} ${icon.f[1]}`}
+      preserveAspectRatio="xMidYMid meet"
+      fill="currentColor"
+      aria-hidden="true"
+    >
       <Paths icon={icon} />
     </svg>
   );
