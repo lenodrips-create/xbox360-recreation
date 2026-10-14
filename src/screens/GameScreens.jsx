@@ -1,30 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
-import { GAMES, GAME_BY_ID } from '../data/games.js';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { APP_BY_ID } from '../data/catalog.js';
-import { gameProgress, gamerscoreOf, useStore } from '../state/store.jsx';
+import { useStore } from '../state/store.jsx';
 import { useUI } from '../state/ui.jsx';
 import { openContent, parseKey } from '../state/content.js';
+import { useLibrary } from '../games/LibraryProvider.jsx';
 import { sound } from '../audio/sound.js';
 import { useLayer } from '../nav/NavProvider.jsx';
 import { AppIcon, BoxArt } from '../components/Art.jsx';
 import Icon from '../components/Icon.jsx';
-import { ButtonHints, GIcon, ProgressBar, Row, Screen, Tile, formatDate } from '../components/ui.jsx';
-import { Empty, HScroll } from './common.jsx';
-
-const ACH_GLYPHS = ['trophy', 'star', 'bolt', 'controller', 'friends', 'clock', 'gold', 'globe'];
-
-function AchievementIcon({ game, ach, unlocked, size = 64 }) {
-  return (
-    <span className={`ach-icon ${unlocked ? '' : 'is-locked'}`} style={{ width: size, height: size, '--h': game.hue + (ach.icon % 4) * 18 }}>
-      <Icon name={unlocked ? ACH_GLYPHS[ach.icon % ACH_GLYPHS.length] : 'lock'} size={size * 0.62} strokeWidth={2.4} />
-    </span>
-  );
-}
+import { ButtonHints, Row, Screen, Tile, formatDate, formatSize } from '../components/ui.jsx';
+import { Empty, HScroll, InfoPanel, MenuScreen } from './common.jsx';
 
 // ---- Library helpers ----------------------------------------------------
-function ContentTile({ itemKey, idPrefix, uninstalled, pinned, onSelect, isDefault }) {
-  const { type, item } = parseKey(itemKey);
-  if (!item) return null;
+function ContentTile({ itemKey, item, type, idPrefix, pinned, onSelect, isDefault }) {
   return (
     <Tile
       id={`${idPrefix}-${itemKey}`}
@@ -37,10 +25,9 @@ function ContentTile({ itemKey, idPrefix, uninstalled, pinned, onSelect, isDefau
       label={type === 'app' ? item.title.toLowerCase() : undefined}
     >
       {type === 'game' ? <BoxArt game={item} /> : <AppIcon app={item} size={96} />}
-      {(uninstalled || pinned) && (
+      {pinned && (
         <span className="lib-flags">
-          {pinned && <Icon name="pin" size={22} />}
-          {uninstalled && <span className="lib-flag">not installed</span>}
+          <Icon name="pin" size={22} />
         </span>
       )}
     </Tile>
@@ -49,9 +36,10 @@ function ContentTile({ itemKey, idPrefix, uninstalled, pinned, onSelect, isDefau
 
 function usePinToggle() {
   const { state, actions } = useStore();
+  const { byId } = useLibrary();
   const ui = useUI();
   return (key) => {
-    const { item } = parseKey(key);
+    const { item } = parseKey(key, byId);
     const pinned = state.pins.includes(key);
     actions.togglePin(key);
     sound.play('toggle');
@@ -64,27 +52,46 @@ function keyFromFocused(el, prefix) {
   return id && id.startsWith(`${prefix}-`) ? id.slice(prefix.length + 1) : null;
 }
 
+// Keys from Recent or Pins that still point at something (deleted games drop out).
+function useLiveKeys(keys) {
+  const { byId } = useLibrary();
+  return keys.map((key) => ({ key, ...parseKey(key, byId) })).filter((k) => k.item);
+}
+
 // ---- My Games -----------------------------------------------------------
-const SORTS = ['Recent', 'A–Z', 'Gamerscore'];
+const SORTS = ['Recent', 'A–Z'];
 
 export function GameLibrary({ active }) {
   const ui = useUI();
   const { state } = useStore();
+  const library = useLibrary();
   const togglePin = usePinToggle();
   const [sort, setSort] = useState(0);
   const games = useMemo(() => {
-    const list = [...GAMES];
+    const list = [...library.games];
     if (sort === 0) {
       const order = state.recent.filter((k) => k.startsWith('game:')).map((k) => k.slice(5));
-      list.sort((a, b) => {
-        const ia = order.indexOf(a.id);
-        const ib = order.indexOf(b.id);
-        return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
-      });
-    } else if (sort === 1) list.sort((a, b) => a.title.localeCompare(b.title));
-    else list.sort((a, b) => gameProgress(state.unlocked, b.id).earned - gameProgress(state.unlocked, a.id).earned);
+      const rank = (g) => {
+        const i = order.indexOf(g.id);
+        return i < 0 ? order.length : i;
+      };
+      list.sort((a, b) => rank(a) - rank(b) || b.addedAt - a.addedAt);
+    } else list.sort((a, b) => a.title.localeCompare(b.title));
     return list;
-  }, [sort, state.recent, state.unlocked]);
+  }, [library.games, sort, state.recent]);
+
+  if (!games.length) {
+    return (
+      <Screen active={active} kicker="games" title="My Games">
+        <Empty icon="controller" title="No games yet" text="Load a web game from this device: an .html file, a .zip, or a folder with an index.html.">
+          <div className="empty-actions">
+            <Row id="lib-add-file" icon="plus" label="Load HTML File or .zip" isDefault onSelect={library.pickFiles} />
+            <Row id="lib-add-folder" icon="hdd" label="Load a Folder" onSelect={library.pickFolder} />
+          </div>
+        </Empty>
+      </Screen>
+    );
+  }
 
   return (
     <Screen
@@ -112,19 +119,21 @@ export function GameLibrary({ active }) {
       }}
     >
       <div className="lib-meta">
-        {GAMES.length} games · sorted by {SORTS[sort].toLowerCase()}
+        {games.length} {games.length === 1 ? 'game' : 'games'} · sorted by {SORTS[sort].toLowerCase()}
       </div>
       <HScroll rows={2}>
+        <Tile id="lib-add" className="lib-tile lib-add" icon="plus" label="add game" onSelect={() => ui.push('addGame')} />
         {games.map((g, i) => {
           const key = `game:${g.id}`;
           return (
             <ContentTile
               key={key}
               itemKey={key}
+              item={g}
+              type="game"
               idPrefix="lib"
               isDefault={i === 0}
               pinned={state.pins.includes(key)}
-              uninstalled={state.uninstalled.includes(key)}
               onSelect={() => ui.push('game', { id: g.id })}
             />
           );
@@ -134,52 +143,86 @@ export function GameLibrary({ active }) {
   );
 }
 
+// ---- Add a game -----------------------------------------------------------
+export function AddGame({ active }) {
+  const library = useLibrary();
+  const items = [
+    {
+      id: 'add-file',
+      label: 'HTML File or .zip',
+      icon: 'plus',
+      desc: 'Pick one or more .html files, or .zip files with a game inside. Each one becomes its own game.',
+      onSelect: library.pickFiles,
+    },
+    {
+      id: 'add-folder',
+      label: 'Folder',
+      icon: 'hdd',
+      desc: 'Pick a folder with an index.html and the images, sounds and scripts it uses.',
+      onSelect: library.pickFolder,
+    },
+  ];
+  return (
+    <MenuScreen
+      active={active}
+      kicker="games"
+      title="Add a Game"
+      items={items}
+      aside={(current) => (
+        <InfoPanel icon={current.icon} title={current.label}>
+          <p>{current.desc}</p>
+          <p className="info-dim">
+            {library.busy
+              ? 'Adding…'
+              : 'Games are saved in this browser only. You can also drag files or folders onto the dashboard. While playing, hold Esc or press Home to open the Guide.'}
+          </p>
+          {library.player === 'unsupported' && (
+            <p className="info-warn">Games can only run when the dashboard is opened from an https address or localhost.</p>
+          )}
+        </InfoPanel>
+      )}
+    />
+  );
+}
+
 // ---- Game detail ----------------------------------------------------------
+const SOURCES = { html: 'HTML file', zip: '.zip file', folder: 'Folder' };
+
 export function GameDetail({ active, params }) {
   const ui = useUI();
-  const { state, actions } = useStore();
-  const game = GAME_BY_ID[params.id];
-  const key = `game:${game.id}`;
+  const { state } = useStore();
+  const library = useLibrary();
+  const game = library.byId[params.id];
+  const key = `game:${params.id}`;
   const pinned = state.pins.includes(key);
-  const installed = !state.uninstalled.includes(key);
-  const prog = gameProgress(state.unlocked, game.id);
   const togglePin = usePinToggle();
-  const [installing, setInstalling] = useState(null);
 
-  useEffect(() => {
-    if (installing === null) return undefined;
-    if (installing >= 100) {
-      actions.install(key);
-      setInstalling(null);
-      ui.notify({ kind: 'info', title: 'Installation complete', text: game.title, icon: 'download', force: true });
-      return undefined;
-    }
-    const t = setTimeout(() => setInstalling((p) => Math.min(100, p + 9)), 160);
-    return () => clearTimeout(t);
-  }, [installing]); // eslint-disable-line react-hooks/exhaustive-deps
+  if (!game) {
+    return (
+      <Screen active={active} kicker="games" title="Game Not Found">
+        <Empty icon="info" title="This game isn't on this device anymore" text="Press B to go back." />
+      </Screen>
+    );
+  }
 
-  const play = () => {
-    if (!installed) {
-      if (installing === null) setInstalling(0);
-      return;
-    }
-    actions.touchRecent(key);
-    ui.push('launch', { kind: 'game', id: game.id });
+  const rename = async () => {
+    const v = await ui.keyboard({ title: 'Rename Game', value: game.title, maxLength: 60 });
+    if (v === null || !v.trim()) return;
+    await library.rename(game.id, v.trim());
+    ui.notify({ kind: 'info', title: 'Game renamed', text: v.trim(), icon: 'controller', force: true });
   };
 
-  const manage = async () => {
-    if (installed) {
-      const ok = await ui.confirm({
-        title: 'Delete Game',
-        message: `Delete ${game.title} (${game.size} GB) from the hard drive? Saved games and achievements are kept.`,
-        confirmLabel: 'Delete',
-        cancelLabel: 'Cancel',
-      });
-      if (ok) {
-        actions.uninstall(key);
-        ui.notify({ kind: 'info', title: 'Deleted from hard drive', text: game.title, icon: 'trash', force: true });
-      }
-    } else if (installing === null) setInstalling(0);
+  const remove = async () => {
+    const ok = await ui.confirm({
+      title: 'Delete Game',
+      message: `Delete ${game.title} from this device? Its saved progress is deleted too. You can load it again later.`,
+      confirmLabel: 'Delete',
+      cancelLabel: 'Cancel',
+    });
+    if (!ok) return;
+    await library.remove(game.id);
+    ui.pop();
+    ui.notify({ kind: 'info', title: 'Game deleted', text: game.title, icon: 'trash', force: true });
   };
 
   return (
@@ -210,229 +253,149 @@ export function GameDetail({ active, params }) {
             at={[1, 1, 2, 1]}
             className="tile-play"
             isDefault
-            icon={installed ? 'play' : 'download'}
-            label={installed ? 'play' : installing !== null ? `installing ${installing}%` : 'install'}
-            onSelect={play}
-          >
-            {installing !== null && <ProgressBar value={installing} className="tile-progress" />}
-          </Tile>
-          <Tile
-            id="gd-ach"
-            at={[1, 2, 1, 1]}
-            variant="dark"
-            className="tile-ach"
-            onSelect={() => ui.push('achievements', { id: game.id })}
-            ariaLabel="achievements"
-          >
-            <span className="ta-count">
-              {prog.count}/{prog.of}
-            </span>
-            <span className="ta-score">
-              <GIcon size={18} /> {prog.earned}/{prog.total}
-            </span>
-            <ProgressBar value={prog.earned} max={prog.total} className="tile-progress" />
-            <span className="tile-label">achievements</span>
-          </Tile>
+            icon="play"
+            label="play"
+            onSelect={() => ui.push('play', { id: game.id })}
+          />
           <Tile
             id="gd-pin"
-            at={[2, 2, 1, 1]}
+            at={[1, 2, 1, 1]}
             icon="pin"
             label={pinned ? 'unpin from home' : 'pin to home'}
             onSelect={() => togglePin(key)}
             snd={null}
           />
-          <Tile
-            id="gd-addons"
-            at={[1, 3, 1, 1]}
-            variant="light"
-            icon="plus"
-            label="add-ons"
-            className="tile-short"
-            onSelect={() => ui.push('marketplace', { category: 'addons' })}
-          />
-          <Tile
-            id="gd-manage"
-            at={[2, 3, 1, 1]}
-            variant="light"
-            icon={installed ? 'trash' : 'download'}
-            label={installed ? 'delete' : 'install'}
-            className="tile-short"
-            onSelect={manage}
-          />
+          <Tile id="gd-rename" at={[2, 2, 1, 1]} icon="edit" label="rename" onSelect={rename} />
+          <Tile id="gd-delete" at={[1, 3, 2, 1]} variant="light" icon="trash" label="delete" className="tile-short" onSelect={remove} />
         </div>
         <div className="detail-info">
           <dl className="facts">
-            <dt>Genre</dt>
-            <dd>{game.genre}</dd>
-            <dt>Publisher</dt>
-            <dd>{game.publisher}</dd>
-            <dt>Developer</dt>
-            <dd>{game.developer}</dd>
-            <dt>Released</dt>
-            <dd>{game.released}</dd>
-            <dt>Rating</dt>
-            <dd>
-              <span className="rating-chip">{game.rating}</span>
-            </dd>
-            <dt>Players</dt>
-            <dd>{game.players}</dd>
-            <dt>Xbox LIVE</dt>
-            <dd>{game.online}</dd>
+            <dt>Added</dt>
+            <dd>{formatDate(game.addedAt)}</dd>
+            <dt>Loaded from</dt>
+            <dd>{SOURCES[game.source] || 'This device'}</dd>
+            <dt>Starts at</dt>
+            <dd className="facts-path">{game.entry}</dd>
+            <dt>Files</dt>
+            <dd>{game.fileCount}</dd>
             <dt>Size</dt>
-            <dd>
-              {game.size} GB {installed ? '· installed' : '· not installed'}
-            </dd>
+            <dd>{formatSize(game.size)}</dd>
           </dl>
-          <p className="detail-desc">{game.description}</p>
+          <p className="detail-desc">Stored in this browser only. Progress the game saves stays here too, kept apart from your other games.</p>
         </div>
       </div>
     </Screen>
   );
 }
 
-// ---- Achievements (per game) --------------------------------------------
-const FILTERS = ['All', 'Unlocked', 'Locked'];
+// ---- Playing a game -------------------------------------------------------
+const GUIDE_HOLD_MS = 700;
 
-export function Achievements({ active, params }) {
+// The game runs full screen in a frame served by public/sw.js. It gets every
+// key and button except the Guide: hold Esc, press Home, or press the
+// controller's Guide or Back button to open the Guide.
+export function PlayGame({ active, params }) {
   const ui = useUI();
-  const { state } = useStore();
-  const game = GAME_BY_ID[params.id];
-  const map = state.unlocked[game.id] || {};
-  const prog = gameProgress(state.unlocked, game.id);
-  const [filter, setFilter] = useState(0);
-  const [focusId, setFocusId] = useState(null);
-  const list = game.achievements.filter((a) => (filter === 0 ? true : filter === 1 ? !!map[a.id] : !map[a.id]));
-  const current = list.find((a) => a.id === focusId) || list[0];
+  const { actions } = useStore();
+  const library = useLibrary();
+  const game = library.byId[params.id];
+  const frameRef = useRef(null);
+  const [loaded, setLoaded] = useState(false);
+  const live = useRef({ ui, active });
+  live.current = { ui, active };
+
+  const openGuide = () => {
+    if (live.current.ui.guideOpen || !live.current.active) return;
+    sound.play('guide');
+    live.current.ui.setGuideOpen(true);
+  };
+  const guideRef = useRef(openGuide);
+  guideRef.current = openGuide;
+
+  const { ref } = useLayer({
+    priority: 10,
+    enabled: active,
+    initialFocus: () => frameRef.current,
+    // B and every other button belong to the game.
+    onBack: () => {},
+    onAction: (action) => {
+      if (action === 'guide') return false;
+      if (action === 'back') openGuide();
+      return true;
+    },
+  });
+
+  useEffect(() => {
+    if (game) actions.touchRecent(`game:${game.id}`);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const onLoad = () => {
+    const frame = frameRef.current;
+    if (!frame) return;
+    if (!loaded) {
+      setLoaded(true);
+      ui.notify({ kind: 'info', title: 'Hold Esc for the Guide', text: 'Or press Home', icon: 'controller', force: true });
+    }
+    try {
+      const win = frame.contentWindow;
+      let hold = 0;
+      win.addEventListener(
+        'keydown',
+        (e) => {
+          if (e.key === 'Home') {
+            e.preventDefault();
+            guideRef.current();
+          } else if (e.key === 'Escape' && !e.repeat) {
+            clearTimeout(hold);
+            hold = setTimeout(() => guideRef.current(), GUIDE_HOLD_MS);
+          }
+        },
+        true,
+      );
+      win.addEventListener('keyup', (e) => e.key === 'Escape' && clearTimeout(hold), true);
+      win.addEventListener('blur', () => clearTimeout(hold));
+    } catch {
+      /* the game navigated away to another site; the Guide button still works */
+    }
+    if (live.current.active && !live.current.ui.guideOpen) frame.focus();
+  };
+
+  let body;
+  if (!game) body = <Empty icon="info" title="This game isn't on this device anymore" text="Open the Guide to go back." />;
+  else if (library.player === 'unsupported')
+    body = <Empty icon="info" title="Games can't run here" text="Open the dashboard from an https address or localhost to play loaded games." />;
+  else if (library.player === 'ready') {
+    const src = new URL(`play/${game.id}/${game.entry.split('/').map(encodeURIComponent).join('/')}`, document.baseURI).href;
+    body = (
+      <iframe
+        ref={frameRef}
+        className={`play-frame ${loaded ? 'is-loaded' : ''}`}
+        src={src}
+        title={game.title}
+        onLoad={onLoad}
+        allow="autoplay; fullscreen; gamepad; clipboard-write"
+        sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-modals allow-downloads allow-popups"
+      />
+    );
+  }
 
   return (
-    <Screen
-      active={active}
-      kicker={game.title}
-      title="Achievements"
-      hints={[
-        { btn: 'a', label: 'Details' },
-        { btn: 'b', label: 'Back' },
-        { btn: 'x', label: `Show: ${FILTERS[filter]}` },
-      ]}
-      onAction={(action) => {
-        if (action === 'x') {
-          sound.play('toggle');
-          setFilter((f) => (f + 1) % FILTERS.length);
-          return true;
-        }
-        return false;
-      }}
-    >
-      <div className="ach-summary">
-        <span>
-          {prog.count} of {prog.of} achievements
-        </span>
-        <span className="ach-summary-g">
-          <GIcon size={22} /> {prog.earned} / {prog.total}
-        </span>
-        <ProgressBar value={prog.earned} max={prog.total} />
-      </div>
-      <div className="split split-ach">
-        <div className="ach-list" data-scroll="y" data-scroll-pad="16">
-          {list.length === 0 && <div className="menu-empty">Nothing to show for this filter.</div>}
-          {list.map((a, i) => {
-            const un = !!map[a.id];
-            return (
-              <button
-                key={a.id}
-                type="button"
-                tabIndex={-1}
-                data-nav=""
-                data-nav-id={`ach-${a.id}`}
-                data-nav-default={i === 0 ? '' : undefined}
-                className={`ach-row ${un ? 'is-unlocked' : ''}`}
-                onFocus={() => setFocusId(a.id)}
-                onClick={() => {
-                  sound.play('select');
-                  ui.confirm({
-                    title: `${a.name} · ${a.g}G`,
-                    message: un ? `${a.desc} Unlocked ${formatDate(map[a.id])}.` : `Locked. ${a.desc}`,
-                    options: [{ label: 'OK', value: true }],
-                  });
-                }}
-              >
-                <AchievementIcon game={game} ach={a} unlocked={un} size={60} />
-                <span className="ach-name">{a.name}</span>
-                <span className="ach-g">
-                  {a.g}
-                  <GIcon size={16} />
-                </span>
-              </button>
-            );
-          })}
+    <section ref={ref} className="screen screen-play">
+      {body}
+      {game && !loaded && library.player !== 'unsupported' && (
+        <div className="launch-loading">
+          <span className="launch-ring" />
+          <span className="launch-text">Loading {game.title}…</span>
         </div>
-        {current && (
-          <aside className="info-panel ach-detail">
-            <AchievementIcon game={game} ach={current} unlocked={!!map[current.id]} size={168} />
-            <h2 className="info-title">{current.name}</h2>
-            <div className="ach-detail-g">
-              <GIcon size={22} /> {current.g}
-            </div>
-            <p>{map[current.id] ? current.desc : `Locked: ${current.desc}`}</p>
-            <p className="info-dim">{map[current.id] ? `Unlocked ${formatDate(map[current.id])}` : 'Not yet unlocked'}</p>
-          </aside>
-        )}
-      </div>
-    </Screen>
+      )}
+    </section>
   );
 }
 
-// ---- Achievements (all games) ---------------------------------------------
-export function AchievementsAll({ active }) {
-  const ui = useUI();
-  const { state } = useStore();
-  const score = gamerscoreOf(state.unlocked);
-  const rows = GAMES.map((g) => ({ g, p: gameProgress(state.unlocked, g.id) })).sort((a, b) => b.p.earned - a.p.earned);
-  return (
-    <Screen active={active} kicker={state.profile.gamertag} title="Achievements">
-      <div className="ach-summary">
-        <span>{rows.length} games</span>
-        <span className="ach-summary-g">
-          <GIcon size={22} /> {score.toLocaleString('en-US')} gamerscore
-        </span>
-      </div>
-      <div className="game-progress-list" data-scroll="y" data-scroll-pad="16">
-        {rows.map(({ g, p }, i) => (
-          <button
-            key={g.id}
-            type="button"
-            tabIndex={-1}
-            data-nav=""
-            data-nav-id={`aa-${g.id}`}
-            data-nav-default={i === 0 ? '' : undefined}
-            className="gp-row"
-            onClick={() => {
-              sound.play('select');
-              ui.push('achievements', { id: g.id });
-            }}
-          >
-            <BoxArt game={g} showTitle={false} className="gp-art" />
-            <span className="gp-title">{g.title}</span>
-            <span className="gp-count">
-              {p.count} of {p.of} achievements
-            </span>
-            <span className="gp-score">
-              <GIcon size={18} /> {p.earned} / {p.total}
-            </span>
-            <ProgressBar value={p.earned} max={p.total} className="gp-bar" />
-          </button>
-        ))}
-      </div>
-    </Screen>
-  );
-}
-
-// ---- Launch (placeholder game/app running) --------------------------------
+// ---- Launch (placeholder app running) ---------------------------------------
 export function Launch({ active, params }) {
   const ui = useUI();
-  const { state, actions } = useStore();
-  const isGame = params.kind === 'game';
-  const item = isGame ? GAME_BY_ID[params.id] : APP_BY_ID[params.id];
+  const app = APP_BY_ID[params.id];
   const [phase, setPhase] = useState('loading');
   const quit = () => ui.pop();
   const { ref, layer, mgr } = useLayer({ priority: 10, enabled: active, onBack: quit });
@@ -446,36 +409,21 @@ export function Launch({ active, params }) {
     if (phase === 'running' && active) mgr.restore(layer);
   }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Simulate earning the next locked achievement a few seconds in.
-  useEffect(() => {
-    if (!isGame || phase !== 'running') return undefined;
-    const t = setTimeout(() => {
-      const map = state.unlocked[item.id] || {};
-      const next = item.achievements.find((a) => !map[a.id]);
-      if (next) {
-        actions.unlock(item.id, next.id);
-        ui.notify({ kind: 'achievement', title: 'Achievement unlocked', text: `${next.g}G – ${next.name}`, force: true });
-      }
-    }, 2500);
-    return () => clearTimeout(t);
-  }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
-
   return (
     <section ref={ref} className="screen screen-launch">
       {phase === 'loading' ? (
         <div className="launch-loading">
           <span className="launch-ring" />
-          <span className="launch-text">Loading {item.title}…</span>
+          <span className="launch-text">Loading {app.title}…</span>
         </div>
       ) : (
         <div className="launch-running">
-          <div className="launch-art">{isGame ? <BoxArt game={item} /> : <AppIcon app={item} size={140} />}</div>
+          <div className="launch-art">
+            <AppIcon app={app} size={140} />
+          </div>
           <div className="launch-copy">
-            <h1>{item.title}</h1>
-            <p>
-              This {isGame ? 'game' : 'app'} is a placeholder. No {isGame ? 'game' : 'app'} content is included in this recreation yet — it will plug
-              in here later.
-            </p>
+            <h1>{app.title}</h1>
+            <p>This app is a placeholder. No app content is included in this recreation yet.</p>
             <div className="launch-actions">
               <Row id="launch-quit" label="Return to Xbox Dashboard" icon="home" isDefault onSelect={quit} snd="back" />
               <Row id="launch-guide" label="Open Xbox Guide" icon="controller" onSelect={() => ui.setGuideOpen(true)} snd="guide" />
@@ -497,8 +445,9 @@ export function Launch({ active, params }) {
 export function Recent({ active, params }) {
   const ui = useUI();
   const { state } = useStore();
+  const { byId } = useLibrary();
   const togglePin = usePinToggle();
-  const keys = state.recent.filter((k) => !params.filter || k.startsWith(`${params.filter}:`));
+  const keys = useLiveKeys(state.recent.filter((k) => !params.filter || k.startsWith(`${params.filter}:`)));
   return (
     <Screen
       active={active}
@@ -526,8 +475,17 @@ export function Recent({ active, params }) {
         </Empty>
       ) : (
         <HScroll rows={2}>
-          {keys.map((k, i) => (
-            <ContentTile key={k} itemKey={k} idPrefix="rec" isDefault={i === 0} pinned={state.pins.includes(k)} onSelect={() => openContent(ui, k)} />
+          {keys.map(({ key, item, type }, i) => (
+            <ContentTile
+              key={key}
+              itemKey={key}
+              item={item}
+              type={type}
+              idPrefix="rec"
+              isDefault={i === 0}
+              pinned={state.pins.includes(key)}
+              onSelect={() => openContent(ui, key, byId)}
+            />
           ))}
         </HScroll>
       )}
@@ -538,7 +496,9 @@ export function Recent({ active, params }) {
 export function Pins({ active }) {
   const ui = useUI();
   const { state } = useStore();
+  const { byId } = useLibrary();
   const togglePin = usePinToggle();
+  const keys = useLiveKeys(state.pins);
   return (
     <Screen
       active={active}
@@ -558,7 +518,7 @@ export function Pins({ active }) {
         return false;
       }}
     >
-      {state.pins.length === 0 ? (
+      {keys.length === 0 ? (
         <Empty icon="pin" title="No pins yet" text="Press Y on a game or app to pin it here.">
           <div className="empty-actions">
             <Row id="pins-games" label="Browse My Games" isDefault onSelect={() => ui.replace('games')} />
@@ -567,8 +527,16 @@ export function Pins({ active }) {
         </Empty>
       ) : (
         <HScroll rows={2}>
-          {state.pins.map((k, i) => (
-            <ContentTile key={k} itemKey={k} idPrefix="pin" isDefault={i === 0} onSelect={() => openContent(ui, k)} />
+          {keys.map(({ key, item, type }, i) => (
+            <ContentTile
+              key={key}
+              itemKey={key}
+              item={item}
+              type={type}
+              idPrefix="pin"
+              isDefault={i === 0}
+              onSelect={() => openContent(ui, key, byId)}
+            />
           ))}
         </HScroll>
       )}

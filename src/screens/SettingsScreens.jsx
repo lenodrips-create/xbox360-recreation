@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { GAMES } from '../data/games.js';
 import { APPS } from '../data/catalog.js';
 import { THEMES, THEME_BY_ID } from '../data/themes.js';
-import { gamerscoreOf, isValidGamertag, useStore } from '../state/store.jsx';
+import { isValidGamertag, useStore } from '../state/store.jsx';
+import { useLibrary } from '../games/LibraryProvider.jsx';
 import { useUI } from '../state/ui.jsx';
 import { sound } from '../audio/sound.js';
 import Gamerpic from '../components/Gamerpic.jsx';
 import Icon from '../components/Icon.jsx';
-import { GIcon, ProgressBar, Row, Screen } from '../components/ui.jsx';
-import { InfoPanel, MenuScreen } from './common.jsx';
+import { GIcon, ProgressBar, Row, Screen, formatSize } from '../components/ui.jsx';
+import { Empty, InfoPanel, MenuScreen } from './common.jsx';
 
 // ---- Profile ------------------------------------------------------------------
 export function ProfileSettings({ active }) {
@@ -123,7 +123,7 @@ export function ProfileSettings({ active }) {
             <div>
               <div className="pc-big-tag">{p.gamertag}</div>
               <div className="pc-line">
-                <GIcon size={20} /> {gamerscoreOf(state.unlocked).toLocaleString('en-US')}
+                <GIcon size={20} /> {state.profile.gamerscore.toLocaleString('en-US')}
               </div>
               <div className="pc-line">“{p.motto || '—'}”</div>
             </div>
@@ -182,7 +182,7 @@ export function SystemSettings({ active }) {
   const reset = async () => {
     const ok = await ui.confirm({
       title: 'Restore Defaults',
-      message: 'Reset your profile, theme, settings, pins, messages and achievements to their original state? This can’t be undone.',
+      message: 'Reset your profile, theme, settings, pins and messages to their original state? Games you loaded are kept. This can’t be undone.',
       confirmLabel: 'Restore Defaults',
       cancelLabel: 'Cancel',
     });
@@ -244,7 +244,7 @@ export function SystemSettings({ active }) {
       id: 'sys-reset',
       label: 'Restore Defaults',
       icon: 'trash',
-      desc: 'Reset this dashboard to its default profile, theme and settings. Clears everything saved in this browser.',
+      desc: 'Reset this dashboard to its default profile, theme and settings. Games you loaded are kept.',
       onSelect: reset,
     },
   ];
@@ -582,14 +582,13 @@ export function About({ active }) {
 }
 
 // ---- Storage ------------------------------------------------------------------
-function storageBreakdown(state) {
-  const installed = GAMES.filter((g) => !state.uninstalled.includes(`game:${g.id}`));
-  const games = installed.reduce((s, g) => s + g.size, 0);
+function storageBreakdown(state, games) {
+  const loaded = games.reduce((s, g) => s + g.size, 0) / 1024 ** 3;
   const apps = APPS.reduce((s, a) => s + a.size, 0) / 1024;
   const downloads = state.downloads.length * 0.35;
   const cache = state.cacheClearedAt ? 0.1 : 2.4;
   return [
-    { id: 'games', label: 'Games and Apps', gb: games + apps, color: '#5db12b' },
+    { id: 'games', label: 'Games and Apps', gb: loaded + apps, color: '#5db12b' },
     { id: 'saves', label: 'Saved Games', gb: 3.6, color: '#2f6fb5' },
     { id: 'profiles', label: 'Profiles', gb: 0.4, color: '#e67e22' },
     { id: 'downloads', label: 'Demos and Downloads', gb: downloads + 1.2, color: '#8e44ad' },
@@ -609,7 +608,8 @@ const DEVICES = [
 export function StorageSettings({ active }) {
   const ui = useUI();
   const { state, actions } = useStore();
-  const parts = storageBreakdown(state);
+  const { games } = useLibrary();
+  const parts = storageBreakdown(state, games);
   const used = parts.reduce((s, p) => s + p.gb, 0);
   const sizes = { hdd: used, usb: 3.1, mu: 0.8, cloud: 0.4 };
   const [focus, setFocus] = useState('hdd');
@@ -695,7 +695,7 @@ export function StorageSettings({ active }) {
 
 export function StorageDevice({ active, params }) {
   const ui = useUI();
-  const { state, actions } = useStore();
+  const library = useLibrary();
   const dev = DEVICES.find((d) => d.id === params.id) || DEVICES[0];
   if (dev.id !== 'hdd') {
     const items = [
@@ -729,31 +729,35 @@ export function StorageDevice({ active, params }) {
     ];
     return <MenuScreen active={active} kicker="storage" title={dev.label} items={items} />;
   }
-  const items = GAMES.map((g) => {
-    const key = `game:${g.id}`;
-    const installed = !state.uninstalled.includes(key);
-    return {
-      id: `sd-${g.id}`,
-      label: g.title,
-      value: installed ? `${g.size} GB` : 'Not installed',
-      icon: installed ? 'controller' : 'download',
-      desc: installed ? `Select to delete ${g.title} from the hard drive.` : `Select to reinstall ${g.title}.`,
-      onSelect: async () => {
-        if (installed) {
-          const ok = await ui.confirm({
-            title: 'Delete',
-            message: `Delete ${g.title} (${g.size} GB)?`,
-            confirmLabel: 'Delete',
-            cancelLabel: 'Cancel',
-          });
-          if (ok) actions.uninstall(key);
-        } else {
-          actions.install(key);
-          ui.notify({ kind: 'info', title: 'Installed', text: g.title, icon: 'download', force: true });
-        }
-      },
-    };
-  });
+  if (!library.games.length) {
+    return (
+      <Screen active={active} kicker="storage" title="Hard Drive · Games">
+        <Empty icon="controller" title="No games stored" text="Games you load from this device are listed here.">
+          <div className="empty-actions">
+            <Row id="sd-add" icon="plus" label="Add a Game" isDefault onSelect={() => ui.replace('addGame')} />
+          </div>
+        </Empty>
+      </Screen>
+    );
+  }
+  const items = library.games.map((g) => ({
+    id: `sd-${g.id}`,
+    label: g.title,
+    value: formatSize(g.size),
+    icon: 'controller',
+    desc: `Select to delete ${g.title} and its saved progress from this browser.`,
+    onSelect: async () => {
+      const ok = await ui.confirm({
+        title: 'Delete Game',
+        message: `Delete ${g.title} (${formatSize(g.size)}) and its saved progress?`,
+        confirmLabel: 'Delete',
+        cancelLabel: 'Cancel',
+      });
+      if (!ok) return;
+      await library.remove(g.id);
+      ui.notify({ kind: 'info', title: 'Game deleted', text: g.title, icon: 'trash', force: true });
+    },
+  }));
   return <MenuScreen active={active} kicker="storage" title="Hard Drive · Games" items={items} />;
 }
 
@@ -842,7 +846,7 @@ export function Preferences({ active }) {
       label: 'Notifications',
       value: s.notifications,
       icon: 'message',
-      desc: 'Pop-up notifications for messages, friends and achievements.',
+      desc: 'Pop-up notifications for messages and friends.',
       onChange: (v) => set({ notifications: v }),
     },
     {

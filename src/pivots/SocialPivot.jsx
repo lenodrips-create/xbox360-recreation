@@ -1,12 +1,7 @@
-import { useMemo } from 'react';
 import { Tile } from '../components/ui.jsx';
 import { GBadge, TileArt } from '../components/Glyph.jsx';
 import Avatar from '../components/Avatar.jsx';
-import { REF } from '../data/reference.js';
-import { DEFAULT_AVATAR } from '../data/avatar.js';
-import { gamerscoreOf, useStore } from '../state/store.jsx';
-
-const AWARD_NAMES = ['Bone', 'Iron Sword', 'Pickaxe', 'Crafting Table', 'Wood Block', 'Book', 'Badge'];
+import { useStore } from '../state/store.jsx';
 
 // Everything on the social channel can be selected (it zooms and plays the
 // hover sound) but nothing opens another screen.
@@ -20,10 +15,7 @@ function SocialButton({ id, className = '', label, children }) {
 
 export default function SocialPivot() {
   const { state } = useStore();
-  const score = useMemo(() => gamerscoreOf(state.unlocked), [state.unlocked]);
   const { profile } = state;
-  // Until the avatar is customised, show the avatar from the reference capture.
-  const stockAvatar = JSON.stringify(profile.avatar) === JSON.stringify(DEFAULT_AVATAR);
 
   return (
     <div className="social">
@@ -45,30 +37,20 @@ export default function SocialPivot() {
       <SocialButton id="soc-tag" className="soc-tag" label={`${profile.gamertag} profile`}>
         <span className="social-tag">{profile.gamertag}</span>
         <span className="social-score">
-          {score.toLocaleString('en-US')} <GBadge size={46} big />
+          {profile.gamerscore.toLocaleString('en-US')} <GBadge size={46} big />
         </span>
       </SocialButton>
 
       <div className="awards">
-        {Array.from({ length: 9 }, (_, i) =>
-          REF.awards[i] ? (
-            <SocialButton key={i} id={`soc-award-${i + 1}`} className="award" label={AWARD_NAMES[i]}>
-              <img src={REF.awards[i]} alt="" draggable={false} />
-            </SocialButton>
-          ) : (
-            <SocialButton key={i} id={`soc-award-${i + 1}`} className="award is-empty" label="Empty award slot" />
-          ),
-        )}
+        {Array.from({ length: 9 }, (_, i) => (
+          <SocialButton key={i} id={`soc-award-${i + 1}`} className="award is-empty" label="Empty award slot" />
+        ))}
       </div>
 
       <SocialButton id="soc-avatar" className="soc-avatar" label="Change avatar">
-        {stockAvatar ? (
-          <img className="social-avatar-img" src={REF.avatar} alt="" draggable={false} />
-        ) : (
-          <span className="social-avatar">
-            <Avatar config={profile.avatar} delay={0.6} />
-          </span>
-        )}
+        <span className="social-avatar">
+          <Avatar config={profile.avatar} delay={0.6} />
+        </span>
       </SocialButton>
 
       <SocialButton id="soc-copy" className="soc-copy" label="Find friends">

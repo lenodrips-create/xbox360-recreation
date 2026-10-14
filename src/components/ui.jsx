@@ -301,3 +301,10 @@ export function timeAgo(ts) {
 export function formatDate(ts) {
   return new Date(ts).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' });
 }
+
+export function formatSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 ** 2) return `${Math.round(bytes / 1024)} KB`;
+  if (bytes < 1024 ** 3) return `${(bytes / 1024 ** 2).toFixed(1)} MB`;
+  return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
+}

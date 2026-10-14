@@ -121,7 +121,6 @@ export const BoxArt = memo(function BoxArt({ game, className = '', showTitle = t
             <strong>{game.title.match(/\d+$/)?.[0]}</strong>
           </div>
         )}
-        {game.arcade && <div className="boxart-arcade">ARCADE</div>}
       </div>
     </div>
   );

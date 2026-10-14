@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { APPS, APP_BY_ID, MARKET_CATEGORIES, OFFERS, OFFER_BY_ID } from '../data/catalog.js';
-import { GAMES } from '../data/games.js';
 import { FRIENDS } from '../data/social.js';
 import { useStore } from '../state/store.jsx';
+import { useLibrary } from '../games/LibraryProvider.jsx';
 import { useUI } from '../state/ui.jsx';
 import { sound } from '../audio/sound.js';
 import { useNav } from '../nav/NavProvider.jsx';
@@ -346,7 +346,7 @@ const SETTINGS_INDEX = [
   ['Theme', 'settings.theme', 'palette'],
   ['Avatar editor', 'avatar', 'avatar'],
   ['Gamer picture', 'gamerpic', 'photo'],
-  ['Achievements', 'achievementsAll', 'trophy'],
+  ['Add a game', 'addGame', 'plus'],
   ['Messages', 'messages', 'message'],
   ['Friends', 'friends', 'friends'],
   ['Restore defaults (reset)', 'settings.system', 'refresh'],
@@ -354,11 +354,12 @@ const SETTINGS_INDEX = [
 
 export function Search({ active, params }) {
   const ui = useUI();
+  const { games } = useLibrary();
   const q = params.q.toLowerCase();
   const results = useMemo(() => {
     const out = [];
-    GAMES.forEach((g) => {
-      if (`${g.title} ${g.genre} game`.toLowerCase().includes(q))
+    games.forEach((g) => {
+      if (`${g.title} game`.toLowerCase().includes(q))
         out.push({ id: `s-${g.id}`, label: g.title, value: 'Game', icon: 'controller', run: () => ui.push('game', { id: g.id }) });
     });
     APPS.forEach((a) => {
@@ -378,7 +379,7 @@ export function Search({ active, params }) {
         out.push({ id: `s-${o.id}`, label: o.title, value: 'Marketplace', icon: 'bag', run: () => ui.push('offer', { id: o.id }) });
     });
     return out.slice(0, 40);
-  }, [q, ui]);
+  }, [games, q, ui]);
 
   return (
     <Screen

@@ -1,6 +1,6 @@
-import { memo, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useId, useRef, useState } from 'react';
 import { THEME_BY_ID } from '../data/themes.js';
-import { gamerscoreOf, useStore } from '../state/store.jsx';
+import { useStore } from '../state/store.jsx';
 import { useUI } from '../state/ui.jsx';
 import { sound } from '../audio/sound.js';
 import Gamerpic from './Gamerpic.jsx';
@@ -72,8 +72,8 @@ export function Background() {
 export function ProfileCorner() {
   const { state } = useStore();
   const ui = useUI();
-  const score = useMemo(() => gamerscoreOf(state.unlocked), [state.unlocked]);
   const { profile } = state;
+  const score = profile.gamerscore;
   const online = FRIENDS.filter((f) => !state.removedFriends.includes(f.id) && ui.presence[f.id]?.presence === 'online').length;
   const unread = state.messages.filter((m) => !m.read).length;
   const onSettings = ui.pivot === 2 && ui.stack.length === 0;

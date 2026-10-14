@@ -106,13 +106,6 @@ function Gamerpic({ id, avatar, size = 64, className = '' }) {
   const uid = raw.replace(/[^a-zA-Z0-9_-]/g, '');
   const pic = GAMERPIC_BY_ID[id] || GAMERPIC_BY_ID.orb;
   const isAvatar = pic.glyph === 'avatar' && avatar;
-  if (pic.src) {
-    return (
-      <span className={`gamerpic ${className}`} style={{ width: size, height: size }}>
-        <img src={pic.src} alt="" width={size} height={size} draggable={false} style={{ display: 'block', width: '100%', height: '100%' }} />
-      </span>
-    );
-  }
   return (
     <span className={`gamerpic ${className}`} style={{ width: size, height: size }}>
       <svg viewBox="0 0 64 64" width={size} height={size} aria-hidden="true">

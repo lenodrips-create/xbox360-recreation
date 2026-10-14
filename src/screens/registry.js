@@ -1,20 +1,7 @@
 // Maps screen ids (used with ui.push) to components.
-import { Achievements, AchievementsAll, GameDetail, GameLibrary, Launch, Pins, Recent } from './GameScreens.jsx';
+import { AddGame, GameDetail, GameLibrary, Launch, Pins, PlayGame, Recent } from './GameScreens.jsx';
 import { AppDetail, AppLibrary, Gold, Marketplace, Media, Offer, Search } from './ContentScreens.jsx';
-import {
-  Beacons,
-  Compare,
-  Compose,
-  FriendProfile,
-  Friends,
-  Message,
-  Messages,
-  MyProfile,
-  Party,
-  PickFriend,
-  PickGame,
-  SignInOut,
-} from './SocialScreens.jsx';
+import { Beacons, Compose, FriendProfile, Friends, Message, Messages, MyProfile, Party, PickFriend, PickGame, SignInOut } from './SocialScreens.jsx';
 import {
   About,
   AccountSettings,
@@ -37,8 +24,8 @@ import { AvatarEditor, GamerpicPicker } from './AvatarScreens.jsx';
 export const SCREENS = {
   games: GameLibrary,
   game: GameDetail,
-  achievements: Achievements,
-  achievementsAll: AchievementsAll,
+  addGame: AddGame,
+  play: PlayGame,
   launch: Launch,
   recent: Recent,
   pins: Pins,
@@ -51,7 +38,6 @@ export const SCREENS = {
   media: Media,
   friends: Friends,
   friend: FriendProfile,
-  compare: Compare,
   profile: MyProfile,
   messages: Messages,
   message: Message,

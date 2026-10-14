@@ -240,6 +240,12 @@ const P = {
     </>
   ),
   plus: <path d="M24 9v30M9 24h30" />,
+  edit: (
+    <>
+      <path d="M10 38l3-11L32 8l8 8-19 19-11 3z" />
+      <path d="M28 12l8 8" />
+    </>
+  ),
   trash: (
     <>
       <path d="M8 12h32M19 12V7h10v5" />

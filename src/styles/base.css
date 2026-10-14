@@ -257,7 +257,8 @@ p {
     0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
-.safe:has(.screen-launch) .profile-corner {
+.safe:has(.screen-launch) .profile-corner,
+.safe:has(.screen-play) .profile-corner {
   opacity: 0;
   pointer-events: none;
 }
@@ -374,18 +375,6 @@ p {
   letter-spacing: -0.02em;
 }
 
-.boxart-arcade {
-  position: absolute;
-  right: 0;
-  top: 6%;
-  padding: 1.5% 5%;
-  background: #f39c12;
-  color: #fff;
-  font-size: 6cqh;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-}
-
 .app-icon {
   display: inline-flex;
   align-items: center;
@@ -407,8 +396,6 @@ p {
   inset: 0;
   overflow: hidden;
   background-color: var(--green);
-  /* faint vertical grain seen on the console's tiles */
-  background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.009) 0 4px, rgba(0, 0, 0, 0.009) 4px 11px);
   transition: filter 0.15s;
 }
 

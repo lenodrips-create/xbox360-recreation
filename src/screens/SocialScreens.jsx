@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AUTO_REPLIES, FRIENDS, FRIEND_BY_ID } from '../data/social.js';
-import { GAMES, GAME_BY_ID } from '../data/games.js';
-import { gameProgress, gamerscoreOf, useStore } from '../state/store.jsx';
+import { useStore } from '../state/store.jsx';
+import { useLibrary } from '../games/LibraryProvider.jsx';
 import { useUI } from '../state/ui.jsx';
 import { sound } from '../audio/sound.js';
 import Avatar from '../components/Avatar.jsx';
 import Gamerpic from '../components/Gamerpic.jsx';
 import Icon from '../components/Icon.jsx';
 import { BoxArt } from '../components/Art.jsx';
-import { GIcon, ProgressBar, Row, Screen, Stars, presenceLabel, timeAgo } from '../components/ui.jsx';
+import { GIcon, Row, Screen, Stars, presenceLabel, timeAgo } from '../components/ui.jsx';
 import { Empty, InfoPanel } from './common.jsx';
 
 function useFriends() {
@@ -261,14 +261,6 @@ export function Party({ active }) {
 }
 
 // ---- Friend profile -------------------------------------------------------
-function friendProgress(friend, gameId) {
-  const g = GAME_BY_ID[gameId];
-  let h = 0;
-  for (const ch of friend.id + gameId) h = (h * 31 + ch.charCodeAt(0)) % 9973;
-  const ratio = friend.games.includes(gameId) ? 0.25 + (h % 70) / 100 : 0;
-  return Math.round((g.total * ratio) / 5) * 5;
-}
-
 export function FriendProfile({ active, params }) {
   const ui = useUI();
   const { state, actions } = useStore();
@@ -330,79 +322,16 @@ export function FriendProfile({ active, params }) {
         <div className="menu profile-actions">
           <Row id="fp-msg" icon="message" label="Send Message" isDefault onSelect={() => ui.push('compose', { to: f.id })} />
           <Row id="fp-party" icon="party" label="Invite to Party" onSelect={() => inviteToParty(ui, f)} />
-          <Row id="fp-compare" icon="compare" label="Compare Games" onSelect={() => ui.push('compare', { id: f.id })} />
           {f.beacon && (
             <Row
               id="fp-beacon"
               icon="beacon"
               label="View Beacon"
-              value={GAME_BY_ID[f.beacon.game].short}
               onSelect={() => ui.notify({ kind: 'friend', friend: f.id, title: `${f.gamertag}'s beacon`, text: f.beacon.text, force: true })}
-            />
-          )}
-          {f.presence === 'online' && f.activity.startsWith('Playing') && (
-            <Row
-              id="fp-join"
-              icon="controller"
-              label="Join Game"
-              onSelect={() => {
-                const g = GAMES.find((x) => f.activity.includes(x.title));
-                if (g) ui.push('game', { id: g.id });
-              }}
             />
           )}
           {!removed && <Row id="fp-remove" icon="trash" label="Remove Friend" onSelect={remove} />}
         </div>
-      </div>
-    </Screen>
-  );
-}
-
-export function Compare({ active, params }) {
-  const ui = useUI();
-  const { state } = useStore();
-  const f = FRIEND_BY_ID[params.id];
-  const rows = GAMES.map((g) => ({ g, mine: gameProgress(state.unlocked, g.id).earned, theirs: friendProgress(f, g.id) })).filter(
-    (r) => r.mine || r.theirs,
-  );
-  return (
-    <Screen active={active} kicker={`you vs ${f.gamertag}`} title="Compare Games">
-      <div className="compare-head">
-        <span>Game</span>
-        <span className="cmp-who">
-          <Gamerpic id={state.profile.gamerpic} avatar={state.profile.avatar} size={40} /> You
-        </span>
-        <span className="cmp-who">
-          <Gamerpic id={f.gamerpic} avatar={f.avatar} size={40} /> {f.gamertag}
-        </span>
-      </div>
-      <div className="compare-list" data-scroll="y" data-scroll-pad="16">
-        {rows.map(({ g, mine, theirs }, i) => (
-          <button
-            key={g.id}
-            type="button"
-            tabIndex={-1}
-            data-nav=""
-            data-nav-id={`cmp-${g.id}`}
-            data-nav-default={i === 0 ? '' : undefined}
-            className="cmp-row"
-            onClick={() => {
-              sound.play('select');
-              ui.push('achievements', { id: g.id });
-            }}
-          >
-            <BoxArt game={g} showTitle={false} className="gp-art" />
-            <span className="gp-title">{g.title}</span>
-            <span className={`cmp-val ${mine >= theirs ? 'is-lead' : ''}`}>
-              <GIcon size={16} /> {mine}
-              <ProgressBar value={mine} max={g.total} />
-            </span>
-            <span className={`cmp-val ${theirs > mine ? 'is-lead' : ''}`}>
-              <GIcon size={16} /> {theirs}
-              <ProgressBar value={theirs} max={g.total} />
-            </span>
-          </button>
-        ))}
       </div>
     </Screen>
   );
@@ -413,7 +342,7 @@ export function MyProfile({ active }) {
   const ui = useUI();
   const { state } = useStore();
   const p = state.profile;
-  const score = gamerscoreOf(state.unlocked);
+  const score = p.gamerscore;
   return (
     <Screen active={active} kicker="profile" title="My Profile">
       <div className="profile-layout">
@@ -455,7 +384,6 @@ export function MyProfile({ active }) {
           <Row id="mp-edit" icon="person" label="Edit Profile" isDefault onSelect={() => ui.push('settings.profile')} />
           <Row id="mp-avatar" icon="avatar" label="Change Avatar" onSelect={() => ui.push('avatar')} />
           <Row id="mp-pic" icon="photo" label="Change Gamer Picture" onSelect={() => ui.push('gamerpic')} />
-          <Row id="mp-ach" icon="trophy" label="Achievements" onSelect={() => ui.push('achievementsAll')} />
           <Row id="mp-beacon" icon="beacon" label="Beacons & Activity" onSelect={() => ui.push('beacons')} />
         </div>
       </div>
@@ -602,7 +530,6 @@ export function Message({ active, params }) {
         </div>
         <div className="menu">
           {s.friend && <Row id="mv-reply" icon="reply" label="Reply" isDefault onSelect={() => ui.push('compose', { to: s.friend.id })} />}
-          {m.kind === 'invite' && <Row id="mv-join" icon="controller" label="Join Game" onSelect={() => ui.push('game', { id: m.game })} />}
           {s.friend && <Row id="mv-profile" icon="person" label="View Profile" onSelect={() => ui.push('friend', { id: s.friend.id })} />}
           <Row id="mv-delete" icon="trash" label="Delete" isDefault={!s.friend} onSelect={del} />
         </div>
@@ -703,15 +630,26 @@ export function PickFriend({ active, params }) {
 
 export function PickGame({ active, params }) {
   const ui = useUI();
+  const { games } = useLibrary();
+  if (!games.length) {
+    return (
+      <Screen active={active} kicker="choose a game" title={params.title || 'Games'}>
+        <Empty icon="controller" title="No games yet" text="Load a game first, then pick it here.">
+          <div className="empty-actions">
+            <Row id="pg-add" icon="plus" label="Add a Game" isDefault onSelect={() => ui.replace('addGame')} />
+          </div>
+        </Empty>
+      </Screen>
+    );
+  }
   return (
     <Screen active={active} kicker="choose a game" title={params.title || 'Games'}>
       <div className="menu wide-list" data-scroll="y" data-scroll-pad="20">
-        {GAMES.map((g, i) => (
+        {games.map((g, i) => (
           <Row
             key={g.id}
             id={`pg-${g.id}`}
             label={g.title}
-            value={g.genre}
             isDefault={i === 0}
             onSelect={() => {
               ui.pop();
@@ -728,36 +666,38 @@ export function PickGame({ active, params }) {
 
 // ---- Beacons & activity -----------------------------------------------------
 const ACTIVITY = [
-  ['f03', 'unlocked “Completionist”', 'g07', 2],
-  ['f01', 'set a beacon', 'g03', 3],
-  ['f05', 'earned 150G', 'g01', 5],
-  ['f10', 'started playing', 'g05', 8],
-  ['f02', 'unlocked “Explorer”', 'g09', 20],
-  ['f07', 'beat a friend’s score', 'g03', 26],
+  ['f03', 'set a beacon', 2],
+  ['f01', 'set a beacon', 3],
+  ['f05', 'changed their gamer picture', 5],
+  ['f10', 'updated their avatar', 8],
+  ['f02', 'changed their motto', 20],
+  ['f07', 'came back online', 26],
 ];
 
 export function Beacons({ active }) {
   const ui = useUI();
   const { state, actions } = useStore();
+  const { byId } = useLibrary();
   const friends = useFriends();
   const withBeacons = friends.filter((f) => f.beacon);
   const mine = state.myBeacon;
+  const mineTitle = mine ? byId[mine.game]?.title || 'A game' : '';
 
   const setBeacon = () =>
     ui.push('pickGame', {
       title: 'Set a Beacon',
       onPick: async (gameId) => {
-        const text = await ui.keyboard({ title: `Beacon message for ${GAME_BY_ID[gameId].title}`, value: 'Anyone want to play?', maxLength: 60 });
+        const text = await ui.keyboard({ title: `Beacon message for ${byId[gameId].title}`, value: 'Anyone want to play?', maxLength: 60 });
         if (text === null) return;
         actions.setBeacon({ game: gameId, text: text || 'Anyone want to play?', at: Date.now() });
-        ui.notify({ kind: 'info', title: 'Beacon set', text: GAME_BY_ID[gameId].title, icon: 'beacon', force: true });
+        ui.notify({ kind: 'info', title: 'Beacon set', text: byId[gameId].title, icon: 'beacon', force: true });
       },
     });
 
   const manage = async () => {
     const choice = await ui.confirm({
       title: 'Your Beacon',
-      message: `${GAME_BY_ID[mine.game].title}: “${mine.text}”`,
+      message: `${mineTitle}: “${mine.text}”`,
       options: [
         { label: 'Change Beacon', value: 'change' },
         { label: 'Clear Beacon', value: 'clear' },
@@ -777,32 +717,26 @@ export function Beacons({ active }) {
         <div className="menu" data-scroll="y" data-scroll-pad="20">
           <div className="menu-section">your beacon</div>
           {mine ? (
-            <Row id="bc-mine" icon="beacon" label={GAME_BY_ID[mine.game].title} value={`“${mine.text}”`} isDefault onSelect={manage} />
+            <Row id="bc-mine" icon="beacon" label={mineTitle} value={`“${mine.text}”`} isDefault onSelect={manage} />
           ) : (
             <Row id="bc-set" icon="plus" label="Set a Beacon" isDefault onSelect={setBeacon} />
           )}
           <div className="menu-section">friends' beacons</div>
           {withBeacons.map((f) => (
-            <Row
-              key={f.id}
-              id={`bc-${f.id}`}
-              label={f.gamertag}
-              value={GAME_BY_ID[f.beacon.game].short}
-              onSelect={() => ui.push('friend', { id: f.id })}
-            >
+            <Row key={f.id} id={`bc-${f.id}`} label={f.gamertag} value={`“${f.beacon.text}”`} onSelect={() => ui.push('friend', { id: f.id })}>
               <Gamerpic id={f.gamerpic} avatar={f.avatar} size={44} className="row-pic row-pic-left" />
             </Row>
           ))}
           <div className="menu-section">recent activity</div>
-          {ACTIVITY.filter(([fid]) => !state.removedFriends.includes(fid)).map(([fid, what, gid, hours]) => {
+          {ACTIVITY.filter(([fid]) => !state.removedFriends.includes(fid)).map(([fid, what, hours]) => {
             const f = FRIEND_BY_ID[fid];
             return (
               <Row
                 key={fid + what}
-                id={`act-${fid}-${gid}`}
+                id={`act-${fid}`}
                 label={`${f.gamertag} ${what}`}
                 value={`${hours}h ago`}
-                onSelect={() => ui.push('game', { id: gid })}
+                onSelect={() => ui.push('friend', { id: fid })}
               >
                 <Gamerpic id={f.gamerpic} avatar={f.avatar} size={44} className="row-pic row-pic-left" />
               </Row>
@@ -816,7 +750,7 @@ export function Beacons({ active }) {
           </p>
           {withBeacons.map((f) => (
             <p key={f.id} className="beacon-quote">
-              <strong>{f.gamertag}</strong> · {GAME_BY_ID[f.beacon.game].title}
+              <strong>{f.gamertag}</strong>
               <br />“{f.beacon.text}”
             </p>
           ))}

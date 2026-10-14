@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLayer } from '../nav/NavProvider.jsx';
 import { useUI } from '../state/ui.jsx';
-import { gamerscoreOf, useStore } from '../state/store.jsx';
+import { useStore } from '../state/store.jsx';
+import { useLibrary } from '../games/LibraryProvider.jsx';
 import { sound } from '../audio/sound.js';
 import { FRIENDS } from '../data/social.js';
 import Icon from '../components/Icon.jsx';
@@ -31,7 +32,8 @@ function GuidePanel() {
   const [tab, setTab] = useState(2);
   const [dir, setDir] = useState(0);
   const clock = useClock(state.settings.clock24);
-  const score = useMemo(() => gamerscoreOf(state.unlocked), [state.unlocked]);
+  const library = useLibrary();
+  const score = state.profile.gamerscore;
   const unread = state.messages.filter((m) => !m.read).length;
   const online = FRIENDS.filter((f) => !state.removedFriends.includes(f.id) && ui.presence[f.id]?.presence !== 'offline').length;
 
@@ -42,6 +44,22 @@ function GuidePanel() {
   const go = (fn) => () => {
     ui.setGuideOpen(false);
     fn();
+  };
+  // Going home quits a game that's running, so ask first.
+  const goHome = async () => {
+    ui.setGuideOpen(false);
+    const playing = ui.stack.find((e) => e.type === 'play');
+    if (playing) {
+      const title = library.byId[playing.params.id]?.title || 'the game';
+      const ok = await ui.confirm({
+        title: `Quit ${title}?`,
+        message: 'Anything the game hasn’t saved will be lost.',
+        confirmLabel: 'Quit',
+        cancelLabel: 'Keep Playing',
+      });
+      if (!ok) return;
+    }
+    ui.home(0);
   };
   const switchTab = (d) => {
     const next = tab + d;
@@ -73,8 +91,7 @@ function GuidePanel() {
       }
       if (action === 'y') {
         sound.play('select');
-        ui.setGuideOpen(false);
-        ui.home(0);
+        goHome();
         return true;
       }
       return false;
@@ -137,14 +154,14 @@ function GuidePanel() {
       { id: 'g-tray', label: ui.trayOpen ? 'Close Tray' : 'Open Tray', icon: 'tray', run: toggleTray },
     ],
     games: [
-      { id: 'g-ach', label: 'Achievements', icon: 'trophy', run: go(() => ui.push('achievementsAll')) },
       { id: 'g-mygames', label: 'My Games', icon: 'controller', run: go(() => ui.push('games')) },
+      { id: 'g-addgame', label: 'Add a Game', icon: 'plus', run: go(() => ui.push('addGame')) },
       { id: 'g-myapps', label: 'My Apps', icon: 'apps', run: go(() => ui.push('apps')) },
       { id: 'g-recent', label: 'Recent', icon: 'clock', run: go(() => ui.push('recent')) },
       { id: 'g-market', label: 'Game Marketplace', icon: 'bag', run: go(() => ui.push('marketplace', { category: 'games' })) },
     ],
     home: [
-      { id: 'g-home', label: 'Xbox Home', icon: 'home', run: go(() => ui.home(0)) },
+      { id: 'g-home', label: 'Xbox Home', icon: 'home', run: goHome },
       { id: 'g-msgs', label: 'Messages', value: unread ? `${unread} new` : null, icon: 'message', run: go(() => ui.push('messages')) },
       { id: 'g-profile', label: 'My Profile', icon: 'person', run: go(() => ui.push('profile')) },
       { id: 'g-beacons', label: 'Beacons & Activity', icon: 'beacon', run: go(() => ui.push('beacons')) },

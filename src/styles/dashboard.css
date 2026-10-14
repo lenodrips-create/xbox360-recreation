@@ -7,7 +7,6 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  will-change: transform, opacity;
   transition:
     opacity 0.32s var(--ease-std),
     transform 0.5s var(--ease-out);
@@ -86,7 +85,6 @@
   height: 620px;
   width: 0;
   transition: transform 0.55s cubic-bezier(0.16, 0.84, 0.24, 1);
-  will-change: transform;
 }
 
 .strip.no-anim {
@@ -209,7 +207,8 @@
 }
 
 .tile-promo .tile-face {
-  background: #1a1c1a;
+  background:
+    radial-gradient(120% 70% at 88% 12%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 60%), linear-gradient(160deg, #2a2c2a 0%, #141514 100%);
 }
 
 .tile-promo .qr {
@@ -340,12 +339,6 @@
   top: 132px;
 }
 
-.award img {
-  display: block;
-  width: 62px;
-  height: 62px;
-}
-
 .award:focus {
   transform: scale(1.15);
   box-shadow: 3px 5px 14px rgba(0, 0, 0, 0.45);
@@ -363,23 +356,10 @@
 }
 
 .soc-avatar {
-  left: 469px;
-  top: 64px;
-  width: 202px;
-  height: 554px;
-}
-
-.soc-avatar:has(.social-avatar) {
   left: 424px;
   top: 30px;
   width: 300px;
   height: 600px;
-}
-
-.social-avatar-img {
-  display: block;
-  width: 100%;
-  height: 100%;
 }
 
 .social-avatar {
@@ -429,7 +409,7 @@
   bottom: 8px;
 }
 
-/* ---- Reference imagery ------------------------------------------------- */
+/* ---- Play tile and spotlight art ---------------------------------------- */
 .tile-img {
   position: absolute;
   inset: 0;
@@ -439,12 +419,16 @@
   display: block;
 }
 
-/* Crisp live label + disc icon over the Play tile artwork. */
+/* Live label + disc icon over the Play tile artwork. */
 .tile-play-game .tile-label {
   font-size: 27px;
   letter-spacing: 0.4px;
   left: 17px;
+  right: 17px;
   bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .play-disc {
@@ -457,4 +441,77 @@
   border-radius: 50%;
   background: radial-gradient(circle, rgba(110, 110, 110, 0.5) 0 6.5px, #ececec 7.5px 100%);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* Drawn spotlight: your newest games fanned out, or sample covers. */
+.spotlight {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: radial-gradient(120% 95% at 82% 8%, #4a9a26 0%, #1f5410 46%, #0a1a06 100%);
+}
+
+.spotlight-fan {
+  position: absolute;
+  top: 40px;
+  right: 90px;
+  width: 300px;
+  height: 214px;
+}
+
+.spotlight-card {
+  position: absolute;
+  top: 0;
+  width: 150px;
+  height: 200px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5);
+  transform-origin: 50% 100%;
+}
+
+.spotlight-card.c0 {
+  left: 75px;
+  z-index: 3;
+}
+
+.spotlight-card.c1 {
+  left: 0;
+  z-index: 2;
+  transform: rotate(-12deg);
+}
+
+.spotlight-card.c2 {
+  left: 150px;
+  z-index: 1;
+  transform: rotate(12deg);
+}
+
+.spotlight-copy {
+  position: absolute;
+  left: 26px;
+  right: 26px;
+  bottom: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #fff;
+}
+
+.spotlight-kicker {
+  font-size: 20px;
+  text-transform: lowercase;
+  opacity: 0.75;
+}
+
+.spotlight-head {
+  font-size: 34px;
+  font-weight: 300;
+  line-height: 1.15;
+}
+
+.spotlight-sub {
+  font-size: 20px;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

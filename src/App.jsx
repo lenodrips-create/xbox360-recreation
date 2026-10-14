@@ -4,9 +4,10 @@ import { StoreProvider, useStore } from './state/store.jsx';
 import { UIProvider, useUI } from './state/ui.jsx';
 import { sound } from './audio/sound.js';
 import { THEME_BY_ID } from './data/themes.js';
-import { FRIENDS } from './data/social.js';
-import { GAMES } from './data/games.js';
+import { ACTIVITIES, FRIENDS } from './data/social.js';
+import { LibraryProvider, useLibrary } from './games/LibraryProvider.jsx';
 import { ArtDefs } from './components/Art.jsx';
+import Icon from './components/Icon.jsx';
 import { Background, ProfileCorner } from './components/Chrome.jsx';
 import Dashboard from './components/Dashboard.jsx';
 import ScreenStack from './screens/ScreenStack.jsx';
@@ -32,8 +33,10 @@ function useStageScale() {
   return scale;
 }
 
-// Simulated Xbox LIVE activity: friends come online, change games, and
-// reply to messages you send. Entirely local.
+const pick = (list) => list[Math.floor(Math.random() * list.length)];
+
+// Simulated Xbox LIVE activity: friends come online, change what they're
+// doing, and reply to messages you send. Entirely local.
 function useLiveSimulation() {
   const ui = useUI();
   const { state } = useStore();
@@ -51,16 +54,15 @@ function useLiveSimulation() {
       const online = pool.filter((f) => presenceRef.current[f.id].presence === 'online');
       const r = Math.random();
       if (r < 0.55 && offline.length) {
-        const f = offline[Math.floor(Math.random() * offline.length)];
-        const g = GAMES[Math.floor(Math.random() * GAMES.length)];
-        setFriendPresence(f.id, { presence: 'online', activity: `Playing ${g.title}` });
-        notify({ kind: 'friend', title: `${f.gamertag} is online`, text: `Playing ${g.title}`, friend: f.id });
+        const f = pick(offline);
+        const activity = pick(ACTIVITIES);
+        setFriendPresence(f.id, { presence: 'online', activity });
+        notify({ kind: 'friend', title: `${f.gamertag} is online`, text: activity, friend: f.id });
       } else if (r < 0.8 && online.length) {
-        const f = online[Math.floor(Math.random() * online.length)];
-        const g = GAMES[Math.floor(Math.random() * GAMES.length)];
-        setFriendPresence(f.id, { activity: `Playing ${g.title}` });
+        const f = pick(online);
+        setFriendPresence(f.id, { activity: pick(ACTIVITIES) });
       } else if (online.length > 3) {
-        const f = online[Math.floor(Math.random() * online.length)];
+        const f = pick(online);
         setFriendPresence(f.id, { presence: 'offline', activity: 'Last seen just now' });
       }
     };
@@ -73,6 +75,7 @@ function Console() {
   const { state, actions } = useStore();
   const ui = useUI();
   const nav = useNav();
+  const library = useLibrary();
   const scale = useStageScale();
   const { settings } = state;
   const theme = THEME_BY_ID[settings.theme] || THEME_BY_ID.default;
@@ -152,6 +155,12 @@ function Console() {
         <HelpOverlay />
         <ToastHost />
         <PowerOverlay />
+        {library.dragging && (
+          <div className="drop-hint">
+            <Icon name="plus" size={96} />
+            <span>Drop to add a game</span>
+          </div>
+        )}
       </div>
       <div className="rotate-hint" aria-hidden="true">
         Rotate your device for the full-screen dashboard
@@ -164,9 +173,11 @@ export default function App() {
   return (
     <StoreProvider>
       <UIProvider>
-        <NavProvider>
-          <Console />
-        </NavProvider>
+        <LibraryProvider>
+          <NavProvider>
+            <Console />
+          </NavProvider>
+        </LibraryProvider>
       </UIProvider>
     </StoreProvider>
   );

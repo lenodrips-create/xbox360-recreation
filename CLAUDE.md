@@ -35,8 +35,21 @@ keyboard (arrows, Enter, Esc, Q/E for channels, G for the Guide) as well as the 
 - **First launch.** `overlays/Welcome.jsx` asks for a gamertag (required) and a name
   (optional) while `state.onboarded` is false, and Restore Defaults brings it back. Everything
   stays in localStorage: there are no accounts, passwords or admin controls, so keep it that way.
-- **Content keys.** Games and apps are referred to as `game:g01` / `app:a03`. Use
-  `parseKey` / `openContent` from `state/content.js`.
+- **Game library.** There are no built-in games. Players load web games (an `.html`
+  file, a `.zip`, or a folder) and `src/games/` stores them in IndexedDB: metadata in
+  `games`, every file as a Blob in `files` keyed `<id>/<path>`. `useLibrary()` exposes the
+  list, the file/folder pickers (call them synchronously from a press, or the browser blocks
+  the picker), drag-and-drop, rename and delete.
+- **Playing.** The `play` screen loads `play/<id>/<entry>` in an iframe. `public/sw.js`
+  answers those requests from IndexedDB and injects a script that namespaces the game's
+  localStorage (`x360:game:<id>:`), so a game can't clear the dashboard's save. The player
+  layer swallows every button except Guide/Back; hold Esc or press Home inside the game
+  opens the Guide, and Xbox Home asks before quitting. Keep the database name, version
+  and stores identical in `src/games/db.js` and `public/sw.js`. Games need a secure
+  context (https or localhost).
+- **Content keys.** Loaded games are `game:<id>` and apps `app:a03`. Use `parseKey` /
+  `openContent` from `state/content.js` with the library's `byId`; keys for deleted games
+  resolve to nothing, and `actions.forget` removes them from Pins and Recent.
 - **Sound.** `sound.play(name)` from `audio/sound.js`. `hover` and `select` are recorded
   samples; every other cue is synthesized.
 
@@ -48,14 +61,16 @@ keyboard (arrows, Enter, Esc, Q/E for channels, G for the Guide) as well as the 
   Compiler rules are off on purpose (refs are mirrored during render in several places).
 - `src/data/icons.js` is generated (glyphs traced from captures). Don't hand-edit it; it is
   excluded from Prettier.
-- Games and apps are placeholders. `src/data/games.js` builds them from a fixed seed so
-  they stay stable between loads.
+- Apps and Marketplace offers are labelled placeholders (`src/data/catalog.js`). Friends,
+  messages and beacons are fictional and aren't tied to any game. Gamerscore is a profile
+  field (`profile.gamerscore`); loaded games don't award achievements yet.
 
 ## Assets and rights
 
-`public/intro.*`, `public/sfx/`, `public/ref/` and `src/data/icons.js` come from captures
-of the real console and belong to their rights holders (see the README). Don't add more
-material copied from Microsoft without the owner asking for it.
+`public/intro.*`, `public/sfx/`, `public/ref/qr.webp` and `src/data/icons.js` come from
+captures of the real console and belong to their rights holders (see the README). Other
+art is drawn in CSS/SVG. Don't add more material copied from Microsoft without the owner
+asking for it.
 
 ## Repository
 
