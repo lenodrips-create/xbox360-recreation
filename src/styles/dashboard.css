@@ -425,6 +425,37 @@
   filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.18));
 }
 
+/* Idle sway: pivots from the feet, small enough to read as shifting weight. */
+.social-avatar-img,
+.social-avatar {
+  transform-origin: 50% 96%;
+  animation: socSway 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes socSway {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  25% {
+    transform: translateX(-2px) rotate(-0.8deg);
+  }
+  50% {
+    transform: translateX(0) rotate(0.1deg);
+  }
+  75% {
+    transform: translateX(2px) rotate(0.7deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-avatar-img,
+  .social-avatar {
+    animation: none;
+  }
+}
+
 .social-avatar .avatar {
   width: 100%;
   height: 100%;
