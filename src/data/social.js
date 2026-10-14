@@ -74,6 +74,7 @@ export const FRIENDS = [
     avatar: { hair: 'mohawk', hairColor: '#b5472c', top: 'jacket', topColor: '#2b2b2b', accessory: 'none', skin: '#d9a27c' },
   }),
   F('f06', 'Frostbyte', 'panda', 'busy', 'Watching a video', {
+    avatarN: 9,
     gamerscore: 18300,
     motto: 'Stay frosty.',
     bio: 'Strategy and sims.',
@@ -81,6 +82,7 @@ export const FRIENDS = [
     avatar: { hair: 'swept', hairColor: '#d8d8d8', top: 'hoodie', topColor: '#2f6fb5', accessory: 'beanie', skin: '#f6d7c3' },
   }),
   F('f07', 'NoScopeNana', 'blue-spartan', 'offline', 'Last seen 2 hours ago', {
+    avatarN: 6,
     gamerscore: 72015,
     motto: 'Grandma has aim.',
     bio: 'Been gaming since cartridges.',
@@ -90,6 +92,7 @@ export const FRIENDS = [
     avatar: { hair: 'curly', hairColor: '#d8d8d8', top: 'tee', topColor: '#e67e22', accessory: 'glasses', skin: '#eec1a0' },
   }),
   F('f08', 'Quasar Kid', 'skater-kid', 'offline', 'Last seen yesterday', {
+    avatarN: 8,
     gamerscore: 9045,
     motto: 'Brightest thing in the sky.',
     bio: 'New to Xbox LIVE, add me!',
@@ -98,6 +101,7 @@ export const FRIENDS = [
     avatar: { hair: 'ponytail', hairColor: '#3a63c9', top: 'logo', topColor: '#f1c40f', accessory: 'none', skin: '#d9a27c' },
   }),
   F('f09', 'RustyWrench7', 'metal-head', 'offline', 'Last seen 3 days ago', {
+    avatarN: 7,
     gamerscore: 27430,
     motto: "If it ain't broke, mod it.",
     bio: 'Mechanic by day, racer by night.',
@@ -105,6 +109,7 @@ export const FRIENDS = [
     avatar: { hair: 'short', hairColor: '#5a3825', top: 'jacket', topColor: '#3b3b3b', accessory: 'cap', skin: '#b97f57' },
   }),
   F('f10', 'SilentBanshee', 'skull', 'online', 'Playing a game', {
+    avatarN: 10,
     gamerscore: 41120,
     motto: '...',
     bio: 'Stealth games only.',
