@@ -35,19 +35,7 @@ export default function HomePivot() {
           <span className="tile-label">Play {last.title}</span>
         </Tile>
       ) : (
-        // Until a game has been added, the Play tile from the reference capture.
-        <Tile
-          id="home-play"
-          at={[1, 1, 1, 1]}
-          variant="art"
-          className="tile-play-game"
-          onSelect={() => ui.push('addGame')}
-          ariaLabel="Play Minecraft"
-        >
-          <img className="tile-img" src={REF.play} alt="" draggable={false} />
-          <span className="play-disc" aria-hidden="true" />
-          <span className="tile-label">Play Minecraft</span>
-        </Tile>
+        <Tile id="home-play" at={[1, 1, 1, 1]} className="tile-add" icon="plus" label="Add a Game" onSelect={() => ui.push('addGame')} />
       )}
       <Tile id="home-pins" at={[1, 2, 1, 1]} label="My Pins" onSelect={() => ui.push('pins')}>
         <TileArt name="pin" />
