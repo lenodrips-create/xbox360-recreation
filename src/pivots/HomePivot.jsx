@@ -35,7 +35,7 @@ export default function HomePivot() {
           <span className="tile-label">Play {last.title}</span>
         </Tile>
       ) : (
-        <Tile id="home-play" at={[1, 1, 1, 1]} className="tile-add" icon="plus" label="Add a Game" onSelect={() => ui.push('addGame')} />
+        <Tile id="home-play" at={[1, 1, 1, 1]} className="tile-add" icon="plus" label="Add ROMs" onSelect={() => ui.push('addGame')} />
       )}
       <Tile id="home-pins" at={[1, 2, 1, 1]} label="My Pins" onSelect={() => ui.push('pins')}>
         <TileArt name="pin" />
