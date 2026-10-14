@@ -44,8 +44,6 @@ other aspect ratios), so proportions match a 16:9 TV at any size.
 
 ## Credits
 
-- **Lennon Hellman** ([lenodrips-create](https://github.com/lenodrips-create)): project owner.
+- **Lennon Helman** ([lenodrips-create](https://github.com/lenodrips-create)): project owner.
   Concept and direction, and the reference captures the dashboard is matched against.
 - **Gunner Castle**: repository cleanup, the `main` branch, linting and formatting setup.
-- **Claude** (Anthropic, via Claude Code): wrote the application code from the owner's
-  direction and captures.
