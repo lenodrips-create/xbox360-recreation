@@ -53,7 +53,7 @@ export default function Dashboard() {
     (next, entry = null) => {
       if (next === ui.pivot || next < 0 || next >= PIVOTS.length) return;
       pendingEntry.current = { dir: entry?.dir || (next > ui.pivot ? 'right' : 'left'), rect: entry?.rect || null };
-      sound.play('pivot');
+      sound.play(next > ui.pivot ? 'pivotRight' : 'pivotLeft');
       ui.setPivot(next);
     },
     [ui],

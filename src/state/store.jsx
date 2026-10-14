@@ -6,7 +6,7 @@ const STORAGE_KEY = 'x360-metro-dashboard:v1';
 
 function createDefaultState() {
   return {
-    version: 3,
+    version: 4,
     // False until the first-launch prompt has collected a gamertag.
     onboarded: false,
     signedIn: true,
@@ -17,9 +17,9 @@ function createDefaultState() {
       bio: 'Couch co-op veteran. Collector of 5G achievements. Always up for a party chat.',
       location: 'Pacific Northwest',
       zone: 'Recreation',
-      gamerpic: 'orb',
+      gamerpic: 'reference',
       avatar: { ...DEFAULT_AVATAR },
-      gamerscore: 0,
+      gamerscore: 80,
       rep: 5,
       tier: 'gold',
       memberSince: 2006,
@@ -61,7 +61,20 @@ function createDefaultState() {
   };
 }
 
+// Version 3 saves only lacked the captured gamer picture and gamerscore; keep
+// them (gamertag, games, settings) and bring those two back.
+function migrate(saved) {
+  if (!saved || saved.version !== 3) return saved;
+  const p = saved.profile || {};
+  return {
+    ...saved,
+    version: 4,
+    profile: { ...p, gamerpic: !p.gamerpic || p.gamerpic === 'orb' ? 'reference' : p.gamerpic, gamerscore: p.gamerscore || 80 },
+  };
+}
+
 function mergeSaved(defaults, saved) {
+  saved = migrate(saved);
   if (!saved || typeof saved !== 'object' || saved.version !== defaults.version) return defaults;
   return {
     ...defaults,
