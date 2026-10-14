@@ -10,23 +10,33 @@ import SettingsPivot from '../pivots/SettingsPivot.jsx';
 import { Btn } from './ui.jsx';
 
 // Left edge of each channel name for each selected channel, measured from
-// the captures: the header row drifts left as you move right.
+// the captures (the selected name is drawn larger).
 const HEADER_X = [
   [251, 437, 623],
-  [239, 417, 608],
-  [190, 373, 549],
+  [253, 431, 622],
+  [254, 437, 613],
 ];
+
+// Screen x of each channel's left edge, measured from the captures: the
+// selected channel's tiles start a little further right on each channel, the
+// next channel always peeks in at the right edge, and the previous one shows
+// its right-hand end at the left edge.
+const PAGE_X = [320, 334, 384];
+const NEXT_X = 1823;
+const PREV_X = [-1188, -1152, 0];
+const FAR = 1700;
+
+function pageX(i, cur) {
+  if (i === cur) return PAGE_X[i];
+  if (i > cur) return NEXT_X + (i - cur - 1) * FAR;
+  return PREV_X[i] - (cur - 1 - i) * FAR;
+}
 
 const PIVOTS = [
   { id: 'home', label: 'home', Comp: HomePivot },
   { id: 'social', label: 'social', Comp: SocialPivot },
   { id: 'settings', label: 'settings', Comp: SettingsPivot },
 ];
-
-// All channels sit on one horizontal strip; the current one starts at
-// CONTENT_X and its neighbours peek in, dimmed, at the screen edges.
-const CONTENT_X = 320;
-const PAGE_PITCH = 1510;
 
 export default function Dashboard() {
   const ui = useUI();
@@ -184,7 +194,7 @@ export default function Dashboard() {
           </button>
         ))}
       </nav>
-      <div className={`strip ${reduceMotion ? 'no-anim' : ''}`} style={{ transform: `translate3d(${CONTENT_X - index * PAGE_PITCH}px, 0, 0)` }}>
+      <div className={`strip ${reduceMotion ? 'no-anim' : ''}`}>
         {PIVOTS.map((p, i) => {
           const current = i === index;
           const { Comp } = p;
@@ -194,7 +204,7 @@ export default function Dashboard() {
               ref={(el) => (pagesRef.current[i] = el)}
               data-pivot={p.id}
               className={`page page-${p.id} ${current ? 'is-current' : 'is-off'}`}
-              style={{ left: i * PAGE_PITCH }}
+              style={{ transform: `translate3d(${pageX(i, index)}px, 0, 0)` }}
               inert={current ? undefined : true}
               aria-hidden={current ? undefined : true}
             >

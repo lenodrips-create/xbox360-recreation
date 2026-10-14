@@ -30,14 +30,7 @@ export default function HomePivot() {
       <Tile id="home-pins" at={[1, 2, 1, 1]} label="My Pins" onSelect={() => ui.push('pins')}>
         <TileArt name="pin" />
       </Tile>
-      <Tile
-        id="home-ad"
-        at={[2, 1, 2, 2]}
-        variant="art"
-        className="tile-ad"
-        onSelect={() => ui.push('offer', { id: 'games-01' })}
-        ariaLabel="Featured"
-      >
+      <Tile id="home-ad" at={[2, 1, 2, 2]} variant="art" className="tile-ad" snd={null} ariaLabel="Featured">
         <img className="tile-img" src={REF.spotlight} alt="" draggable={false} />
       </Tile>
       <Tile
@@ -46,7 +39,7 @@ export default function HomePivot() {
         variant="promo"
         className="tile-promo"
         isDefault
-        onSelect={() => ui.push('marketplace', { category: 'games' })}
+        snd={null}
         ariaLabel="Experience next-gen performance. Upgrade Today."
       >
         <img className="tile-img" src={REF.promoBg} alt="" draggable={false} />
