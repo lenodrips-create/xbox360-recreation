@@ -1,6 +1,7 @@
 // Fictional friends, messages and beacons. None of these gamertags belong
 // to real accounts — they are invented for this offline simulation.
 import { randomAvatar } from './avatar.js';
+import { REF } from './reference.js';
 
 const F = (id, gamertag, gamerpic, presence, activity, extra = {}) => ({
   id,
@@ -17,6 +18,8 @@ const F = (id, gamertag, gamerpic, presence, activity, extra = {}) => ({
   rep: extra.rep ?? 4,
   tier: extra.tier ?? 'gold',
   beacon: extra.beacon ?? null,
+  // Real console avatar (a cut-out picture) where one has been supplied.
+  avatarSrc: extra.avatarN ? REF.friendAvatar(extra.avatarN) : null,
 });
 
 // What friends are shown doing in the simulation. Not tied to any game.
@@ -24,6 +27,7 @@ export const ACTIVITIES = ['Playing a game', 'Xbox Dashboard', 'Watching a video
 
 export const FRIENDS = [
   F('f01', 'PixelDrifter', 'creeper', 'online', 'Playing a game', {
+    avatarN: 1,
     gamerscore: 48210,
     motto: 'Drift first, ask later.',
     bio: 'Racing nerd. Co-op anytime after 8pm.',
@@ -34,6 +38,7 @@ export const FRIENDS = [
     avatar: { hair: 'spiky', hairColor: '#e0b862', top: 'jacket', topColor: '#c0392b', accessory: 'headphones', skin: '#eec1a0' },
   }),
   F('f02', 'LunarLlama', 'owl', 'online', 'Xbox Dashboard', {
+    avatarN: 4,
     gamerscore: 23105,
     motto: 'To the moon, slowly.',
     bio: 'Mostly puzzle games and late-night arcade runs.',
@@ -41,6 +46,7 @@ export const FRIENDS = [
     avatar: { hair: 'long', hairColor: '#2a1d16', top: 'hoodie', topColor: '#8e44ad', accessory: 'none', skin: '#b97f57' },
   }),
   F('f03', 'Mochi Mayhem', 'anime-girl', 'online', 'Playing a game', {
+    avatarN: 2,
     gamerscore: 61980,
     motto: 'Achievement hunter. Send tips.',
     bio: 'Completionist. 100% or bust.',
@@ -51,6 +57,7 @@ export const FRIENDS = [
     avatar: { hair: 'bob', hairColor: '#d04f9a', top: 'stripe', topColor: '#f0f0f0', accessory: 'glasses', skin: '#f6d7c3' },
   }),
   F('f04', 'TurboTortoise', 'green-bean', 'away', 'Away', {
+    avatarN: 3,
     gamerscore: 12560,
     motto: 'Slow and steady wins.',
     bio: 'Weekend gamer.',
@@ -58,6 +65,7 @@ export const FRIENDS = [
     avatar: { hair: 'buzz', hairColor: '#2a1d16', top: 'tee', topColor: '#4fa821', accessory: 'cap', skin: '#8d5a3b' },
   }),
   F('f05', 'GhostPepper22', 'flaming-skull', 'online', 'Playing a game', {
+    avatarN: 5,
     gamerscore: 35740,
     motto: 'Too hot to handle.',
     bio: 'Shooters, fighters and spicy food.',

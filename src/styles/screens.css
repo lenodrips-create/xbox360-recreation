@@ -585,6 +585,18 @@
   inset: 0;
 }
 
+.fa-figure .friend-avatar-img,
+.profile-figure .friend-avatar-img {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  height: 92%;
+  max-width: 100%;
+  object-fit: contain;
+  transform: translateX(-50%);
+  animation: fadeIn 0.3s var(--ease-std) both;
+}
+
 .fa-score,
 .fa-status {
   display: flex;

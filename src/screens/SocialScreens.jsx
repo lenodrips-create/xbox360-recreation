@@ -55,13 +55,20 @@ function FriendRow({ f, id, isDefault, onFocus, onSelect }) {
   );
 }
 
+// A friend's full-body avatar: their supplied console avatar picture, otherwise
+// the drawn one.
+function FriendFigure({ f }) {
+  if (f.avatarSrc) return <img className="friend-avatar-img" src={f.avatarSrc} alt="" draggable={false} />;
+  return <Avatar config={f.avatar} pose="wave" />;
+}
+
 function FriendAside({ f }) {
   if (!f) return null;
   return (
     <aside className="info-panel friend-aside">
       <div className="fa-figure">
         <span className="scene-shadow" />
-        <Avatar config={f.avatar} pose="wave" />
+        <FriendFigure f={f} />
       </div>
       <div className="fa-text">
         <h2 className="info-title">{f.gamertag}</h2>
@@ -287,7 +294,7 @@ export function FriendProfile({ active, params }) {
       <div className="profile-layout">
         <div className="profile-figure">
           <span className="scene-shadow" />
-          <Avatar config={f.avatar} pose="wave" />
+          <FriendFigure f={f} />
         </div>
         <div className="profile-card">
           <div className="pc-head">

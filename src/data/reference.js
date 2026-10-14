@@ -6,6 +6,7 @@ export const REF = {
   promoBg: `${base}ref/promo-bg.webp`,
   gamerpic: `${base}ref/gamerpic.webp`,
   pic: (name) => `${base}ref/pics/${name}.webp`,
+  friendAvatar: (n) => `${base}ref/friends/avatar-${n}.webp`,
   avatar: `${base}ref/avatar.webp`,
   awards: Array.from({ length: 7 }, (_, i) => `${base}ref/award-${i + 1}.webp`),
   ad: `${base}ref/ad.webp`,
