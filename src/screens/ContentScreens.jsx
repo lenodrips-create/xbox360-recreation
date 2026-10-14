@@ -337,7 +337,10 @@ const SETTINGS_INDEX = [
   ['System Settings', 'settings.system', 'gear'],
   ['Console Settings', 'settings.console', 'gear'],
   ['Display', 'settings.display', 'monitor'],
-  ['Audio and dashboard sounds', 'settings.audio', 'speaker'],
+  ['Audio', 'settings.audio', 'speaker'],
+  ['Language and Locale', 'settings.language', 'language'],
+  ['Kinect Settings', 'settings.kinect', 'kinect'],
+  ['Xbox Live Vision', 'settings.vision', 'video'],
   ['Storage', 'settings.storage', 'hdd'],
   ['Network', 'settings.network', 'network'],
   ['Preferences', 'settings.prefs', 'sliders'],
@@ -349,7 +352,7 @@ const SETTINGS_INDEX = [
   ['Add a game', 'addGame', 'plus'],
   ['Messages', 'messages', 'message'],
   ['Friends', 'friends', 'friends'],
-  ['Restore defaults (reset)', 'settings.system', 'refresh'],
+  ['Restore defaults (reset)', 'settings.prefs', 'refresh'],
 ];
 
 export function Search({ active, params }) {
