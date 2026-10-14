@@ -1,6 +1,6 @@
 // Dashboard sound effects played through the Web Audio API.
-// Moving the selection, selecting, switching channels and the start-up sign-in
-// use the recorded console sounds in public/sfx/; the rest are synthesized.
+// Moving the selection, selecting, switching channels, notifications and the
+// sign-in use the recorded console sounds in public/sfx/; the rest are synthesized.
 
 let ctx = null;
 let master = null;
@@ -14,6 +14,7 @@ const SAMPLE_URLS = {
   hover: `${import.meta.env.BASE_URL}sfx/hover.wav`,
   select: `${import.meta.env.BASE_URL}sfx/select.wav`,
   signin: `${import.meta.env.BASE_URL}sfx/signin.wav`,
+  notify: `${import.meta.env.BASE_URL}sfx/notify.wav`,
   pivotRight: `${import.meta.env.BASE_URL}sfx/pivot-right.wav`,
   pivotLeft: `${import.meta.env.BASE_URL}sfx/pivot-left.wav`,
 };
@@ -176,6 +177,9 @@ const SOUNDS = {
   },
   error() {
     tone(196, { dur: 0.16, gain: 0.08, type: 'square' });
+  },
+  notify() {
+    if (!sample('notify')) SOUNDS.toast();
   },
   signin() {
     if (sample('signin')) return;
